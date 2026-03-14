@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { launchBrowser } from '../browser/index.js';
+import { resolveHeadlessMode } from '../browser/mode.js';
 import { loadConfig } from '../config.js';
 import { getProvider } from '../providers/index.js';
 import { createSession, saveBundle, saveResponse, updateSession } from '../session/index.js';
@@ -35,17 +36,7 @@ export async function runChat(options: ChatOptions): Promise<ChatResult> {
   const providerName = options.provider ?? config.defaultProvider;
   const provider = getProvider(providerName);
   const timeoutMs = options.timeoutMs ?? config.defaultTimeoutMs;
-  // Some providers (e.g. ChatGPT) use Cloudflare bot-protection that permanently
-  // blocks headless Chromium. Force headed mode for those providers and warn the user.
-  let headless = options.headed === true ? false : config.headless;
-  if (headless && provider.config.headlessBlocked) {
-    console.log(
-      chalk.yellow(
-        `⚠ ${provider.config.displayName} requires a visible browser window (Cloudflare bot-protection blocks headless mode). Opening browser...`,
-      ),
-    );
-    headless = false;
-  }
+  const headless = resolveHeadlessMode(providerName, config.headless, options.headed === true);
 
   // Build the bundle
   const bundle = await buildBundle({
