@@ -146,6 +146,47 @@ export interface ChatOptions {
   isolatedProfile?: boolean;
 }
 
+// ── Research Types ──────────────────────────────────────────────
+
+export interface ResearchOptions {
+  prompt: string;
+  provider?: ProviderName;
+  headed?: boolean;
+  timeoutMs?: number;
+  pollIntervalMs?: number;
+  saveDir?: string;
+  isolatedProfile?: boolean;
+}
+
+export interface ResearchResult {
+  sessionId: string;
+  provider: ProviderName;
+  report: string;
+  truncated: boolean;
+  durationMs: number;
+  savedPath?: string;
+}
+
+// ── Image Generation Types ──────────────────────────────────────
+
+export interface ImageGenOptions {
+  prompt: string;
+  provider?: ProviderName;
+  headed?: boolean;
+  timeoutMs?: number;
+  saveDir?: string;
+  isolatedProfile?: boolean;
+}
+
+export interface ImageGenResult {
+  sessionId: string;
+  provider: ProviderName;
+  images: GeneratedImage[];
+  text: string;
+  truncated: boolean;
+  durationMs: number;
+}
+
 // ── Video Generation Types ──────────────────────────────────────
 
 export type VideoMode = 'ingredients' | 'frames';

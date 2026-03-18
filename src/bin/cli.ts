@@ -8,9 +8,11 @@ import { Command } from 'commander';
 import { stopDaemon } from '../browser/daemon.js';
 import { createChatCommand } from '../cli/chat.js';
 import { createConfigCommand } from '../cli/config.js';
+import { createImageCommand } from '../cli/image.js';
 import { createLoginCommand } from '../cli/login.js';
 import { createMigrateCommand } from '../cli/migrate.js';
 import { createNotebookLMCommand } from '../cli/notebooklm.js';
+import { createResearchCommand } from '../cli/research.js';
 import { createSkillCommand } from '../cli/skill.js';
 import { createSessionCommand, createStatusCommand } from '../cli/status.js';
 import { createVideoCommand } from '../cli/video.js';
@@ -42,6 +44,8 @@ program
 
 program.addCommand(createLoginCommand());
 program.addCommand(createChatCommand());
+program.addCommand(createImageCommand());
+program.addCommand(createResearchCommand());
 program.addCommand(createVideoCommand());
 program.addCommand(createStatusCommand());
 program.addCommand(createSessionCommand());

@@ -1,0 +1,307 @@
+import { mkdir, writeFile } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import chalk from 'chalk';
+import type { Page } from 'playwright';
+import { launchBrowser } from '../browser/index.js';
+import { resolveHeadlessMode } from '../browser/mode.js';
+import { loadConfig } from '../config.js';
+import { getProvider } from '../providers/index.js';
+import { createSession, saveBundle, saveResponse, updateSession } from '../session/index.js';
+import type { ProviderName, ResearchOptions, ResearchResult } from '../types.js';
+
+/**
+ * Provider-specific deep research selectors and logic.
+ * Each provider has a different UI flow for triggering "deep research" mode.
+ */
+interface ResearchProviderConfig {
+  /** How to activate deep research mode before submitting the prompt. */
+  activateResearch: (page: Page) => Promise<void>;
+  /** Selector for the research progress/status indicator. */
+  progressSelector: string;
+  /** Extract progress text (e.g. "Searching 12 sources..."). */
+  getProgress: (page: Page) => Promise<string>;
+  /** Check if research is still running. */
+  isResearching: (page: Page) => Promise<boolean>;
+  /** Extract the final research report text. */
+  getReport: (page: Page) => Promise<string>;
+  /** Extract the final research report HTML. */
+  getReportHtml: (page: Page) => Promise<string>;
+}
+
+const geminiResearch: ResearchProviderConfig = {
+  async activateResearch(page: Page) {
+    // Gemini Deep Research: click the "Deep Research" chip/button
+    // It may appear as a button or in a menu depending on the model
+    const deepResearchBtn = page
+      .locator(
+        'button:has-text("Deep Research"), [aria-label*="Deep Research"], button:has-text("Research")',
+      )
+      .first();
+    const visible = await deepResearchBtn.isVisible().catch(() => false);
+    if (visible) {
+      await deepResearchBtn.click();
+      await page.waitForTimeout(1000);
+    }
+    // If not visible, Gemini may auto-route to deep research based on prompt
+  },
+  progressSelector: '.research-progress, .thinking-indicator, model-response [class*="progress"]',
+  async getProgress(page: Page) {
+    const el = page
+      .locator('.research-progress, .thinking-indicator, model-response [class*="progress"]')
+      .first();
+    return (await el.textContent().catch(() => '')) ?? '';
+  },
+  async isResearching(page: Page) {
+    // Check for active research indicators
+    const indicators = [
+      '.research-progress',
+      '.thinking-indicator',
+      'button[aria-label="Stop generating"]',
+      'button[aria-label="Cancel"]',
+      'model-response [class*="loading"]',
+      'model-response [class*="progress"]',
+    ];
+    for (const sel of indicators) {
+      const visible = await page
+        .locator(sel)
+        .first()
+        .isVisible()
+        .catch(() => false);
+      if (visible) return true;
+    }
+    return false;
+  },
+  async getReport(page: Page) {
+    const responseTurn = page
+      .locator('model-response .model-response-text, model-response message-content')
+      .last();
+    return (await responseTurn.textContent().catch(() => ''))?.trim() ?? '';
+  },
+  async getReportHtml(page: Page) {
+    const responseTurn = page
+      .locator('model-response .model-response-text, model-response message-content')
+      .last();
+    return (await responseTurn.innerHTML().catch(() => '')) ?? '';
+  },
+};
+
+const chatgptResearch: ResearchProviderConfig = {
+  async activateResearch(page: Page) {
+    // ChatGPT deep research: look for "Deep Research" or "Research" button/toggle
+    // Usually appears as a mode toggle or in the model picker
+    const researchBtn = page
+      .locator(
+        'button:has-text("Deep research"), [data-testid*="research"], button:has-text("Research")',
+      )
+      .first();
+    const visible = await researchBtn.isVisible().catch(() => false);
+    if (visible) {
+      await researchBtn.click();
+      await page.waitForTimeout(1000);
+    }
+  },
+  progressSelector: '[data-message-author-role="assistant"]',
+  async getProgress(page: Page) {
+    const lastTurn = page.locator('[data-message-author-role="assistant"]').last();
+    const text = (await lastTurn.textContent().catch(() => ''))?.trim() ?? '';
+    // Extract just the progress part (first few lines)
+    return text.split('\n').slice(0, 3).join(' ').slice(0, 200);
+  },
+  async isResearching(page: Page) {
+    const stopBtn = page.locator('button[aria-label="Stop streaming"]').first();
+    return stopBtn.isVisible().catch(() => false);
+  },
+  async getReport(page: Page) {
+    const lastTurn = page.locator('[data-message-author-role="assistant"]').last();
+    return (await lastTurn.textContent().catch(() => ''))?.trim() ?? '';
+  },
+  async getReportHtml(page: Page) {
+    const lastTurn = page.locator('[data-message-author-role="assistant"]').last();
+    return (await lastTurn.innerHTML().catch(() => '')) ?? '';
+  },
+};
+
+const perplexityResearch: ResearchProviderConfig = {
+  async activateResearch(page: Page) {
+    // Perplexity: toggle "Pro Search" or "Deep Research" if available
+    const proBtn = page
+      .locator('button:has-text("Pro"), button:has-text("Deep"), [aria-label*="Pro Search"]')
+      .first();
+    const visible = await proBtn.isVisible().catch(() => false);
+    if (visible) {
+      await proBtn.click();
+      await page.waitForTimeout(500);
+    }
+  },
+  progressSelector: '.prose',
+  async getProgress(page: Page) {
+    const prose = page.locator('.prose').first();
+    const text = (await prose.textContent().catch(() => ''))?.trim() ?? '';
+    return text.slice(0, 200);
+  },
+  async isResearching(page: Page) {
+    // Perplexity shows a pulsing indicator or "Searching..." text while working
+    const searching = await page
+      .locator('[class*="searching"], [class*="loading"], [class*="animate-pulse"]')
+      .first()
+      .isVisible()
+      .catch(() => false);
+    return searching;
+  },
+  async getReport(page: Page) {
+    const prose = page.locator('.prose').first();
+    return (await prose.textContent().catch(() => ''))?.trim() ?? '';
+  },
+  async getReportHtml(page: Page) {
+    const prose = page.locator('.prose').first();
+    return (await prose.innerHTML().catch(() => '')) ?? '';
+  },
+};
+
+const RESEARCH_CONFIGS: Partial<Record<ProviderName, ResearchProviderConfig>> = {
+  gemini: geminiResearch,
+  chatgpt: chatgptResearch,
+  perplexity: perplexityResearch,
+};
+
+/**
+ * Run a deep research session:
+ * 1. Launch browser → navigate to provider
+ * 2. Activate deep research mode
+ * 3. Submit the research query
+ * 4. Poll for progress (non-blocking style with status updates)
+ * 5. Wait for completion
+ * 6. Extract and save the report
+ */
+export async function runResearch(options: ResearchOptions): Promise<ResearchResult> {
+  const config = await loadConfig();
+  const providerName = options.provider ?? 'gemini';
+  const provider = getProvider(providerName);
+  const researchConfig = RESEARCH_CONFIGS[providerName];
+
+  if (!researchConfig) {
+    throw new Error(
+      `Provider "${providerName}" does not support deep research. Use: gemini, chatgpt, perplexity`,
+    );
+  }
+
+  const timeoutMs = options.timeoutMs ?? 600_000; // 10 minutes default
+  const pollIntervalMs = options.pollIntervalMs ?? 5_000;
+  const headless = resolveHeadlessMode(providerName, config.headless, options.headed === true);
+  const profileMode = options.isolatedProfile ? 'isolated' : config.profileMode;
+
+  // Create session
+  const session = await createSession(providerName, options.prompt);
+  await saveBundle(session.id, options.prompt);
+
+  console.log(chalk.dim(`Session: ${session.id}`));
+  console.log(chalk.blue(`Provider: ${provider.config.displayName}`));
+  console.log(chalk.dim(`Timeout: ${Math.round(timeoutMs / 1000)}s`));
+  console.log(chalk.dim(`Poll interval: ${Math.round(pollIntervalMs / 1000)}s\n`));
+
+  let browser: Awaited<ReturnType<typeof launchBrowser>>;
+  try {
+    await updateSession(session.id, { status: 'running' });
+    browser = await launchBrowser({
+      provider: providerName,
+      headless,
+      url: provider.config.url,
+      profileMode,
+    });
+  } catch (error) {
+    await updateSession(session.id, { status: 'failed' });
+    throw error;
+  }
+
+  const startTime = Date.now();
+
+  try {
+    // Check login
+    const loggedIn = await provider.actions.isLoggedIn(browser.page);
+    if (!loggedIn) {
+      throw new Error(
+        `Not logged in to ${provider.config.displayName}. Run: 10x-chat login ${providerName}`,
+      );
+    }
+
+    // Step 1: Activate deep research mode
+    console.log(chalk.dim('Activating deep research mode...'));
+    await researchConfig.activateResearch(browser.page);
+
+    // Step 2: Submit the research query
+    console.log(chalk.dim('Submitting research query...'));
+    await provider.actions.submitPrompt(browser.page, options.prompt);
+
+    // Step 3: Poll for progress with non-blocking status updates
+    console.log(chalk.dim('Research in progress...\n'));
+    let lastProgress = '';
+    let stableCount = 0;
+    const stableThreshold = 3;
+
+    while (Date.now() - startTime < timeoutMs) {
+      const researching = await researchConfig.isResearching(browser.page);
+      const progress = await researchConfig.getProgress(browser.page);
+
+      // Show progress updates
+      if (progress && progress !== lastProgress) {
+        const elapsed = Math.round((Date.now() - startTime) / 1000);
+        const preview = progress.length > 120 ? `${progress.slice(0, 120)}...` : progress;
+        console.log(chalk.dim(`  [${elapsed}s] ${preview}`));
+        lastProgress = progress;
+        stableCount = 0;
+      } else if (!researching) {
+        stableCount++;
+        if (stableCount >= stableThreshold && lastProgress.length > 0) {
+          console.log(chalk.green('\n✓ Research complete'));
+          break;
+        }
+      }
+
+      await browser.page.waitForTimeout(pollIntervalMs);
+    }
+
+    // Step 4: Extract the final report
+    const report = await researchConfig.getReport(browser.page);
+    const truncated = Date.now() - startTime >= timeoutMs && stableCount < stableThreshold;
+
+    // Save response
+    await saveResponse(session.id, report);
+
+    // Save report to file if requested
+    let savedPath: string | undefined;
+    if (options.saveDir || report.length > 0) {
+      const saveDir =
+        options.saveDir ?? path.join(os.homedir(), '.10x-chat', 'sessions', session.id);
+      await mkdir(saveDir, { recursive: true });
+      const filename = `research-${providerName}-${new Date().toISOString().slice(0, 10)}.md`;
+      savedPath = path.join(saveDir, filename);
+      await writeFile(savedPath, report);
+    }
+
+    const durationMs = Date.now() - startTime;
+    await updateSession(session.id, {
+      status: truncated ? 'timeout' : 'completed',
+      durationMs,
+    });
+
+    return {
+      sessionId: session.id,
+      provider: providerName,
+      report,
+      truncated,
+      durationMs,
+      savedPath,
+    };
+  } catch (error) {
+    const durationMs = Date.now() - startTime;
+    const isTimeout = error instanceof Error && error.message.toLowerCase().includes('timeout');
+    await updateSession(session.id, {
+      status: isTimeout ? 'timeout' : 'failed',
+      durationMs,
+    });
+    throw error;
+  } finally {
+    await browser.close();
+  }
+}

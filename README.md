@@ -71,6 +71,43 @@ npx 10x-chat@latest chat -p "Long task" --timeout 600000 --headed  # 10min timeo
 | `--headed` | Show browser window during chat |
 | `--timeout <ms>` | Response timeout in milliseconds (default: 300000) |
 
+### `image`
+
+Generate images via ChatGPT (DALL-E) or Gemini (Imagen) with non-blocking polling.
+
+```bash
+npx 10x-chat@latest image -p "A fox astronaut in space, digital art" --provider chatgpt
+npx 10x-chat@latest image -p "Watercolor landscape" --provider gemini --save-dir ./images
+npx 10x-chat@latest image -p "Logo design" --headed --timeout 120000
+```
+
+| Flag | Description |
+|------|-------------|
+| `-p, --prompt <text>` | **(required)** The image generation prompt |
+| `--provider <name>` | Provider: `chatgpt`, `gemini` (default: chatgpt) |
+| `--headed` | Show browser window |
+| `--timeout <ms>` | Generation timeout (default: 120000) |
+| `--save-dir <dir>` | Directory to save generated images |
+
+### `research`
+
+Deep research via ChatGPT, Gemini, or Perplexity with non-blocking progress polling. Designed for long-running research tasks (5-10+ minutes).
+
+```bash
+npx 10x-chat@latest research -p "Latest breakthroughs in quantum computing" --provider gemini
+npx 10x-chat@latest research -p "Market analysis of EVs" --provider chatgpt --timeout 600000
+npx 10x-chat@latest research -p "Compare React vs Vue in 2026" --provider perplexity --save-dir ./reports
+```
+
+| Flag | Description |
+|------|-------------|
+| `-p, --prompt <text>` | **(required)** The research query |
+| `--provider <name>` | Provider: `chatgpt`, `gemini`, `perplexity` (default: gemini) |
+| `--headed` | Show browser window |
+| `--timeout <ms>` | Total timeout (default: 600000 / 10 min) |
+| `--poll-interval <ms>` | Progress check interval (default: 5000) |
+| `--save-dir <dir>` | Directory to save the research report |
+
 ### `status`
 
 List recent chat sessions.
