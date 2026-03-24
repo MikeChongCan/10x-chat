@@ -66,9 +66,9 @@ describe('Claude Provider', () => {
     });
 
     it('removes "Thought for" prefix lines', () => {
-      expect(
-        stripClaudeThinkingText('Thought for 5 seconds\nThe answer is 42.'),
-      ).toBe('The answer is 42.');
+      expect(stripClaudeThinkingText('Thought for 5 seconds\nThe answer is 42.')).toBe(
+        'The answer is 42.',
+      );
     });
 
     it('preserves normal responses without thinking prefix', () => {
