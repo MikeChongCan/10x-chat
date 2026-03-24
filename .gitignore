@@ -5,3 +5,8 @@ dist/
 temp-research/
 scripts/inspect-*.ts
 scripts/nvidia-analysis.ts
+
+.pnpm-store/
+pnpm-lock.yaml
+e2e-test.mjs
+e2e-test.mjs

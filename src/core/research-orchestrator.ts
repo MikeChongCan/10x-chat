@@ -4,6 +4,7 @@ import path from 'node:path';
 import chalk from 'chalk';
 import type { Page } from 'playwright';
 import { launchBrowser } from '../browser/index.js';
+import { waitForUrlPathPrefix } from '../browser/page-utils.js';
 import { resolveHeadlessMode } from '../browser/mode.js';
 import { loadConfig } from '../config.js';
 import { getProvider } from '../providers/index.js';
@@ -162,9 +163,7 @@ const chatgptResearch: ResearchProviderConfig = {
     // Wait briefly for /c/<id> navigation if needed
     const url = page.url();
     if (url.includes('/deep-research')) {
-      await page
-        .waitForURL((u) => u.pathname.startsWith('/c/'), { timeout: 30_000 })
-        .catch(() => {});
+      await waitForUrlPathPrefix(page, '/c/', 30_000).catch(() => {});
       await page.waitForTimeout(5_000);
     }
 

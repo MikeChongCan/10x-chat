@@ -1,4 +1,5 @@
 import type { Page } from 'playwright';
+import { waitForUrlChange } from '../browser/page-utils.js';
 import { pollUntilStable } from '../core/polling.js';
 import type { CapturedResponse, ProviderActions, ProviderConfig } from '../types.js';
 
@@ -149,11 +150,7 @@ export const perplexityActions: ProviderActions = {
 
     // Perplexity navigates from / to /search/<slug>-<id> after submit.
     // Wait for the URL to change (indicates response page loaded).
-    await page
-      .waitForURL((url) => url.toString() !== initialUrl, {
-        timeout: Math.min(timeoutMs, 30_000),
-      })
-      .catch(() => {});
+    await waitForUrlChange(page, initialUrl, Math.min(timeoutMs, 30_000)).catch(() => {});
 
     // Wait for the prose response container to appear
     await page

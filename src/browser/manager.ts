@@ -2,11 +2,10 @@ import { mkdir } from 'node:fs/promises';
 import { type BrowserContext, chromium, type Page } from 'playwright';
 import { getIsolatedProfileDir, getSharedProfileDir } from '../paths.js';
 import type { ProfileMode, ProviderName } from '../types.js';
-import { getOrLaunchBrowserDaemon, stopDaemon } from './daemon.js';
+import { launchSharedBrowserSession } from './daemon.js';
 import { acquireProfileLock, type ProfileLock } from './lock.js';
 import { CHROMIUM_ARGS } from './process.js';
-import { loadStorageState, saveStorageState } from './state.js';
-import { registerTab, unregisterTab } from './tabs.js';
+import { saveStorageState } from './state.js';
 
 export interface BrowserSession {
   context: BrowserContext;
@@ -76,62 +75,13 @@ export async function launchBrowser(opts: LaunchOptions): Promise<BrowserSession
  */
 async function launchSharedBrowser(opts: LaunchOptions): Promise<BrowserSession> {
   const { headless = true, url } = opts;
-
-  // Connect to or launch the shared browser daemon
-  const browser = await getOrLaunchBrowserDaemon(headless);
-
-  // Register this tab in the disk-persisted ref count
-  const tabKey = await registerTab();
-
-  let context: BrowserContext;
-  let page: Page;
-  try {
-    // Load shared cookies/storage if available
-    const statePath = await loadStorageState();
-    context = await browser.newContext({
-      viewport: { width: 1280, height: 900 },
-      ...(statePath ? { storageState: statePath } : {}),
-    });
-
-    page = await context.newPage();
-
-    if (url) {
-      await page.goto(url, { waitUntil: 'domcontentloaded' });
-    }
-  } catch (error) {
-    // Unregister tab on failure
-    await unregisterTab(tabKey);
-    throw error;
-  }
-
-  const close = async () => {
-    // Save updated cookies/storage back to shared state
-    try {
-      await saveStorageState(context);
-    } catch {
-      // best effort
-    }
-
-    // Close just this page and context (not the whole browser)
-    try {
-      await page.close();
-    } catch {
-      // already closed
-    }
-    try {
-      await context.close();
-    } catch {
-      // already closed
-    }
-
-    // Unregister tab and stop daemon — for single-shot CLI commands the
-    // browser should not linger after the task completes. This also handles
-    // stale tab files from crashed processes (unregisterTab cleans them).
-    await unregisterTab(tabKey);
-    await stopDaemon();
+  const session = await launchSharedBrowserSession({ headless, url });
+  return {
+    context: session.context,
+    page: session.page,
+    lock: null,
+    close: session.close,
   };
-
-  return { context, page, lock: null, close };
 }
 
 /**

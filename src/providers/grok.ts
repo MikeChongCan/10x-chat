@@ -1,4 +1,5 @@
 import type { Page } from 'playwright';
+import { waitForUrlChange } from '../browser/page-utils.js';
 import { pollUntilStable } from '../core/polling.js';
 import type {
   CapturedResponse,
@@ -85,9 +86,7 @@ export const grokActions: ProviderActions = {
     // so we wait for the URL change first, then look for response content.
     const initialUrl = page.url();
     const remainingForNav = Math.min(timeoutMs, 30_000);
-    await page
-      .waitForURL((url) => url.toString() !== initialUrl, { timeout: remainingForNav })
-      .catch(() => {});
+    await waitForUrlChange(page, initialUrl, remainingForNav).catch(() => {});
 
     // After navigation, wait for at least one response-content-markdown (assistant response)
     await page
