@@ -13,7 +13,7 @@ export const GEMINI_CONFIG: ProviderConfig = {
   displayName: 'Gemini',
   url: 'https://gemini.google.com/app',
   loginUrl: 'https://gemini.google.com/app',
-  models: ['Pro', 'Thinking', 'Fast'],
+  models: ['Fast', 'Thinking', 'Pro'],
   defaultModel: 'Thinking',
   defaultTimeoutMs: 5 * 60 * 1000,
 };

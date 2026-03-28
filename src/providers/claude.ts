@@ -8,8 +8,8 @@ export const CLAUDE_CONFIG: ProviderConfig = {
   displayName: 'Claude',
   url: 'https://claude.ai/new',
   loginUrl: 'https://claude.ai/login',
-  models: ['Claude 4 Opus', 'Claude 4 Sonnet', 'Claude 3.5 Haiku'],
-  defaultModel: 'Claude 4 Sonnet',
+  models: ['Opus 4.6', 'Sonnet 4.6', 'Haiku 4.5', 'Extended thinking'],
+  defaultModel: 'Sonnet 4.6',
   defaultTimeoutMs: 5 * 60 * 1000,
 };
 
@@ -21,9 +21,8 @@ const SELECTORS = {
     '[data-is-streaming], .font-claude-message, .font-claude-response, [data-testid="assistant-message"], [data-testid="user-message"] ~ div',
   fileInput: '[data-testid="file-upload"], #chat-input-file-upload-onpage',
   modelPicker:
-    'button[aria-label*="model" i], button[aria-haspopup="menu"], button[aria-haspopup="listbox"], [role="button"][aria-haspopup="menu"], [role="button"][aria-haspopup="listbox"]',
-  modelOption:
-    '[role="menuitemradio"], [role="menuitem"], [role="option"], button, [role="button"]',
+    'button[data-testid="model-selector-dropdown"], button[aria-label*="model" i], button[aria-haspopup="menu"], button[aria-haspopup="listbox"], [role="button"][aria-haspopup="menu"], [role="button"][aria-haspopup="listbox"]',
+  modelOption: '[role="menuitem"]',
 } as const;
 
 const MODEL_OPTION_SCOPE_SELECTORS = [
@@ -61,52 +60,49 @@ function normalizeModelLabel(text: string | null | undefined): string {
 }
 
 async function getVisibleModelPickerState(page: Page): Promise<{ found: boolean; text: string }> {
-  return page.evaluate((selector: string) => {
-    const normalizeText = (value: string | null | undefined) =>
-      (value ?? '').replace(/\s+/g, ' ').trim();
-    const isVisible = (element: Element | null): element is HTMLElement => {
-      if (!(element instanceof HTMLElement)) return false;
-      if (element.hidden) return false;
-      const style = window.getComputedStyle(element);
-      if (style.display === 'none' || style.visibility === 'hidden') return false;
-      const rect = element.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0;
-    };
-    const pickerTextRe = /claude|opus|sonnet|haiku/i;
-    const picker = Array.from(document.querySelectorAll(selector)).find((element) => {
-      return isVisible(element) && pickerTextRe.test(normalizeText(element.textContent));
-    });
+  return page.evaluate(
+    ({ explicitSelector, candidateSelector }) => {
+      const normalizeText = (value: string | null | undefined) =>
+        (value ?? '').replace(/\s+/g, ' ').trim();
+      const isVisible = (element: Element | null): element is HTMLElement => {
+        if (!(element instanceof HTMLElement)) return false;
+        if (element.hidden) return false;
+        const style = window.getComputedStyle(element);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      };
 
-    return picker
-      ? { found: true, text: normalizeText(picker.textContent) }
-      : { found: false, text: '' };
-  }, SELECTORS.modelPicker);
-}
+      const explicitPicker = Array.from(document.querySelectorAll(explicitSelector)).find(
+        isVisible,
+      );
+      if (explicitPicker) {
+        return { found: true, text: normalizeText(explicitPicker.textContent) };
+      }
 
-async function clickVisibleModelPicker(page: Page): Promise<boolean> {
-  return page.evaluate((selector: string) => {
-    const normalizeText = (value: string | null | undefined) =>
-      (value ?? '').replace(/\s+/g, ' ').trim();
-    const isVisible = (element: Element | null): element is HTMLElement => {
-      if (!(element instanceof HTMLElement)) return false;
-      if (element.hidden) return false;
-      const style = window.getComputedStyle(element);
-      if (style.display === 'none' || style.visibility === 'hidden') return false;
-      const rect = element.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0;
-    };
-    const pickerTextRe = /claude|opus|sonnet|haiku/i;
-    const picker = Array.from(document.querySelectorAll(selector)).find((element) => {
-      return isVisible(element) && pickerTextRe.test(normalizeText(element.textContent));
-    });
+      const pickerTextRe = /claude|opus|sonnet|haiku|extended|thinking/i;
+      const picker = Array.from(document.querySelectorAll(candidateSelector)).find((element) => {
+        return (
+          isVisible(element) &&
+          pickerTextRe.test(
+            normalizeText(
+              element.getAttribute('aria-label') ||
+                element.textContent ||
+                element.getAttribute('data-testid'),
+            ),
+          )
+        );
+      });
 
-    if (!(picker instanceof HTMLElement)) {
-      return false;
-    }
-
-    picker.click();
-    return true;
-  }, SELECTORS.modelPicker);
+      return picker
+        ? { found: true, text: normalizeText(picker.textContent) }
+        : { found: false, text: '' };
+    },
+    {
+      explicitSelector: 'button[data-testid="model-selector-dropdown"]',
+      candidateSelector: SELECTORS.modelPicker,
+    },
+  );
 }
 
 async function clickVisibleModelOption(page: Page, model: string): Promise<boolean> {
@@ -122,7 +118,10 @@ async function clickVisibleModelOption(page: Page, model: string): Promise<boole
         const rect = element.getBoundingClientRect();
         return rect.width > 0 && rect.height > 0;
       };
-      const matchesModel = (element: Element) => normalizeText(element.textContent) === modelLabel;
+      const matchesModel = (element: Element) => {
+        const text = normalizeText(element.textContent);
+        return text.startsWith(modelLabel) || text.includes(modelLabel);
+      };
       const isExcluded = (element: Element) =>
         Boolean(
           excludedSelector &&
@@ -176,11 +175,7 @@ export const claudeActions: ProviderActions = {
       return;
     }
 
-    const pickerClicked = await clickVisibleModelPicker(page);
-    if (!pickerClicked) {
-      console.warn(`Claude model picker not found — skipping model selection for "${model}"`);
-      return;
-    }
+    await page.locator('button[data-testid="model-selector-dropdown"]').first().click();
     await page.waitForTimeout(750);
 
     const optionClicked = await clickVisibleModelOption(page, model);

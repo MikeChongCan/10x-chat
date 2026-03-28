@@ -13,7 +13,7 @@ export const CHATGPT_CONFIG: ProviderConfig = {
   displayName: 'ChatGPT',
   url: 'https://chatgpt.com',
   loginUrl: 'https://chatgpt.com/auth/login',
-  models: ['Instant', 'Thinking', 'Pro'],
+  models: ['Instant', 'Thinking'],
   defaultModel: 'Thinking',
   defaultTimeoutMs: 5 * 60 * 1000,
   // ChatGPT's Cloudflare bot-protection blocks headless Playwright permanently.
@@ -32,9 +32,8 @@ const SELECTORS = {
   /** Hidden file input — exclude the dedicated photo/camera inputs */
   fileInput: 'input[type="file"]:not(#upload-photos):not(#upload-camera)',
   modelPicker:
-    'button[data-testid="model-selector"], button[aria-label*="model" i], button[aria-haspopup="menu"], button[aria-haspopup="listbox"], button[aria-haspopup="dialog"]',
-  modelOption:
-    '[role="menuitemradio"], [role="menuitem"], [role="option"], button, [role="button"]',
+    'button[data-testid="model-switcher-dropdown-button"], button[aria-label="Model selector"], button[aria-label*="model" i], button[aria-haspopup="menu"], button[aria-haspopup="listbox"], button[aria-haspopup="dialog"]',
+  modelOption: '[role="menuitem"]',
 } as const;
 
 const MODEL_OPTION_SCOPE_SELECTORS = [
@@ -71,9 +70,18 @@ async function getVisibleModelPickerState(page: Page): Promise<{ found: boolean;
         return { found: true, text: normalizeText(explicitPicker.textContent) };
       }
 
-      const pickerTextRe = /instant|thinking|pro|gpt|model/i;
+      const pickerTextRe = /instant|thinking|gpt|model/i;
       const candidate = Array.from(document.querySelectorAll(candidateSelector)).find((element) => {
-        return isVisible(element) && pickerTextRe.test(normalizeText(element.textContent));
+        return (
+          isVisible(element) &&
+          pickerTextRe.test(
+            normalizeText(
+              element.getAttribute('aria-label') ||
+                element.textContent ||
+                element.getAttribute('data-testid'),
+            ),
+          )
+        );
       });
 
       return candidate
@@ -81,48 +89,7 @@ async function getVisibleModelPickerState(page: Page): Promise<{ found: boolean;
         : { found: false, text: '' };
     },
     {
-      explicitSelector: 'button[data-testid="model-selector"]',
-      candidateSelector: SELECTORS.modelPicker,
-    },
-  );
-}
-
-async function clickVisibleModelPicker(page: Page): Promise<boolean> {
-  return page.evaluate(
-    ({ explicitSelector, candidateSelector }) => {
-      const normalizeText = (value: string | null | undefined) =>
-        (value ?? '').replace(/\s+/g, ' ').trim();
-      const isVisible = (element: Element | null): element is HTMLElement => {
-        if (!(element instanceof HTMLElement)) return false;
-        if (element.hidden) return false;
-        const style = window.getComputedStyle(element);
-        if (style.display === 'none' || style.visibility === 'hidden') return false;
-        const rect = element.getBoundingClientRect();
-        return rect.width > 0 && rect.height > 0;
-      };
-
-      const explicitPicker = Array.from(document.querySelectorAll(explicitSelector)).find(
-        isVisible,
-      );
-      if (explicitPicker) {
-        explicitPicker.click();
-        return true;
-      }
-
-      const pickerTextRe = /instant|thinking|pro|gpt|model/i;
-      const candidate = Array.from(document.querySelectorAll(candidateSelector)).find((element) => {
-        return isVisible(element) && pickerTextRe.test(normalizeText(element.textContent));
-      });
-
-      if (!(candidate instanceof HTMLElement)) {
-        return false;
-      }
-
-      candidate.click();
-      return true;
-    },
-    {
-      explicitSelector: 'button[data-testid="model-selector"]',
+      explicitSelector: 'button[data-testid="model-switcher-dropdown-button"]',
       candidateSelector: SELECTORS.modelPicker,
     },
   );
@@ -141,7 +108,10 @@ async function clickVisibleModelOption(page: Page, model: string): Promise<boole
         const rect = element.getBoundingClientRect();
         return rect.width > 0 && rect.height > 0;
       };
-      const matchesModel = (element: Element) => normalizeText(element.textContent) === modelLabel;
+      const matchesModel = (element: Element) => {
+        const text = normalizeText(element.textContent);
+        return text.includes(modelLabel);
+      };
       const isExcluded = (element: Element) =>
         Boolean(
           excludedSelector &&
@@ -264,11 +234,7 @@ export const chatgptActions: ProviderActions = {
       return;
     }
 
-    const pickerClicked = await clickVisibleModelPicker(page);
-    if (!pickerClicked) {
-      console.warn(`ChatGPT model picker not found — skipping model selection for "${model}"`);
-      return;
-    }
+    await page.locator('button[data-testid="model-switcher-dropdown-button"]').first().click();
     await page.waitForTimeout(750);
 
     const optionClicked = await clickVisibleModelOption(page, model);

@@ -14,8 +14,8 @@ export const GROK_CONFIG: ProviderConfig = {
   displayName: 'Grok',
   url: 'https://grok.com',
   loginUrl: 'https://grok.com',
-  models: ['grok-3', 'grok-3-think', 'grok-3-deepsearch'],
-  defaultModel: 'grok-3',
+  models: ['Auto', 'Fast', 'Expert', 'Heavy'],
+  defaultModel: 'Auto',
   defaultTimeoutMs: 5 * 60 * 1000,
 };
 
@@ -30,48 +30,29 @@ const SELECTORS = {
   loginPage:
     'a[href*="x.com/i/flow/login"], a[href*="accounts.x.com"], button:has-text("Sign in"), a:has-text("Sign in"), a:has-text("Log in")',
   fileInput: 'input[type="file"][name="files"]',
-  thinkToggle: 'button[aria-pressed][aria-label*="Think"]',
-  deepSearchToggle:
-    'button[aria-pressed][aria-label*="DeepSearch"], button[aria-pressed][aria-label*="Deep Search"]',
+  modelPicker:
+    'button[aria-label="Model select"], button[aria-label*="model" i], button[aria-haspopup="menu"], button[aria-haspopup="listbox"]',
+  modelOption: '[role="menuitem"]',
 } as const;
 
-async function getToggleState(
-  page: Page,
-  selector: string,
-): Promise<{ found: boolean; active: boolean }> {
-  return page.evaluate((toggleSelector: string) => {
-    const isVisible = (element: Element | null): element is HTMLElement => {
-      if (!(element instanceof HTMLElement)) return false;
-      if (element.hidden) return false;
-      const style = window.getComputedStyle(element);
-      if (style.display === 'none' || style.visibility === 'hidden') return false;
-      const rect = element.getBoundingClientRect();
-      return rect.width > 0 && rect.height > 0;
-    };
-    const isActive = (element: HTMLElement) => {
-      const ariaPressed = element.getAttribute('aria-pressed');
-      const dataState = element.getAttribute('data-state');
-      const classes = element.className.toLowerCase();
-      return (
-        ariaPressed === 'true' ||
-        dataState === 'on' ||
-        classes.includes('active') ||
-        classes.includes('selected')
-      );
-    };
+const MODEL_OPTION_SCOPE_SELECTORS = [
+  '[role="menu"]',
+  '[role="listbox"]',
+  '[data-radix-popper-content-wrapper]',
+  '[data-headlessui-portal]',
+  '[data-floating-ui-portal]',
+  '[role="dialog"]',
+] as const;
 
-    const toggle = Array.from(document.querySelectorAll(toggleSelector)).find(isVisible);
-    if (!(toggle instanceof HTMLElement)) {
-      return { found: false, active: false };
-    }
-
-    return { found: true, active: isActive(toggle) };
-  }, selector);
+function normalizeModelLabel(text: string | null | undefined): string {
+  return (text ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
-async function setToggleState(page: Page, selector: string, enabled: boolean): Promise<boolean> {
+async function getVisibleModelPickerState(page: Page): Promise<{ found: boolean; text: string }> {
   return page.evaluate(
-    ({ toggleSelector, enabledState }) => {
+    ({ explicitSelector, candidateSelector }) => {
+      const normalizeText = (value: string | null | undefined) =>
+        (value ?? '').replace(/\s+/g, ' ').trim();
       const isVisible = (element: Element | null): element is HTMLElement => {
         if (!(element instanceof HTMLElement)) return false;
         if (element.hidden) return false;
@@ -80,68 +61,119 @@ async function setToggleState(page: Page, selector: string, enabled: boolean): P
         const rect = element.getBoundingClientRect();
         return rect.width > 0 && rect.height > 0;
       };
-      const isActive = (element: HTMLElement) => {
-        const ariaPressed = element.getAttribute('aria-pressed');
-        const dataState = element.getAttribute('data-state');
-        const classes = element.className.toLowerCase();
-        return (
-          ariaPressed === 'true' ||
-          dataState === 'on' ||
-          classes.includes('active') ||
-          classes.includes('selected')
-        );
-      };
 
-      const toggle = Array.from(document.querySelectorAll(toggleSelector)).find(isVisible);
-      if (!(toggle instanceof HTMLElement)) {
+      const explicitPicker = Array.from(document.querySelectorAll(explicitSelector)).find(
+        isVisible,
+      );
+      if (explicitPicker) {
+        return { found: true, text: normalizeText(explicitPicker.textContent) };
+      }
+
+      const pickerTextRe = /auto|fast|expert|heavy|model/i;
+      const candidate = Array.from(document.querySelectorAll(candidateSelector)).find((element) => {
+        return (
+          isVisible(element) &&
+          pickerTextRe.test(
+            normalizeText(
+              element.getAttribute('aria-label') ||
+                element.textContent ||
+                element.getAttribute('data-testid'),
+            ),
+          )
+        );
+      });
+
+      return candidate
+        ? { found: true, text: normalizeText(candidate.textContent) }
+        : { found: false, text: '' };
+    },
+    {
+      explicitSelector: 'button[aria-label="Model select"]',
+      candidateSelector: SELECTORS.modelPicker,
+    },
+  );
+}
+
+async function clickVisibleModelOption(page: Page, model: string): Promise<boolean> {
+  return page.evaluate(
+    ({ modelLabel, optionSelector, scopeSelectors, excludedSelector }) => {
+      const normalizeText = (value: string | null | undefined) =>
+        (value ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
+      const isVisible = (element: Element | null): element is HTMLElement => {
+        if (!(element instanceof HTMLElement)) return false;
+        if (element.hidden) return false;
+        const style = window.getComputedStyle(element);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
+        const rect = element.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      };
+      const matchesModel = (element: Element) => {
+        const text = normalizeText(element.textContent);
+        return text.startsWith(modelLabel) || text.includes(modelLabel);
+      };
+      const isExcluded = (element: Element) =>
+        Boolean(
+          excludedSelector &&
+            (element.matches(excludedSelector) || element.closest(excludedSelector)),
+        );
+
+      for (const scopeSelector of scopeSelectors) {
+        const scopes = Array.from(document.querySelectorAll(scopeSelector));
+        for (const scope of scopes) {
+          const option = Array.from(scope.querySelectorAll(optionSelector)).find((element) => {
+            return isVisible(element) && matchesModel(element);
+          });
+          if (option instanceof HTMLElement) {
+            option.click();
+            return true;
+          }
+        }
+      }
+
+      const fallbackOption = Array.from(document.querySelectorAll(optionSelector)).find(
+        (element) => {
+          return isVisible(element) && !isExcluded(element) && matchesModel(element);
+        },
+      );
+
+      if (!(fallbackOption instanceof HTMLElement)) {
         return false;
       }
 
-      if (isActive(toggle) !== enabledState) {
-        toggle.click();
-      }
-
+      fallbackOption.click();
       return true;
     },
-    { toggleSelector: selector, enabledState: enabled },
+    {
+      modelLabel: normalizeModelLabel(model),
+      optionSelector: SELECTORS.modelOption,
+      scopeSelectors: [...MODEL_OPTION_SCOPE_SELECTORS],
+      excludedSelector: SELECTORS.modelPicker,
+    },
   );
 }
 
 export const grokActions: ProviderActions = {
   async selectModel(page: Page, model: string): Promise<void> {
-    const thinkToggle = await getToggleState(page, SELECTORS.thinkToggle);
-    const deepSearchToggle = await getToggleState(page, SELECTORS.deepSearchToggle);
-
-    if (model === 'grok-3-think') {
-      if (!thinkToggle.found) {
-        console.warn('Grok Think toggle not found — skipping model selection for "grok-3-think"');
-        return;
-      }
-      await setToggleState(page, SELECTORS.deepSearchToggle, false);
-      if (!thinkToggle.active) {
-        await setToggleState(page, SELECTORS.thinkToggle, true);
-      }
-      await page.waitForTimeout(500);
+    const picker = await getVisibleModelPickerState(page);
+    if (!picker.found) {
+      console.warn(`Grok model picker not found — skipping model selection for "${model}"`);
       return;
     }
 
-    if (model === 'grok-3-deepsearch') {
-      if (!deepSearchToggle.found) {
-        console.warn(
-          'Grok DeepSearch toggle not found — skipping model selection for "grok-3-deepsearch"',
-        );
-        return;
-      }
-      await setToggleState(page, SELECTORS.thinkToggle, false);
-      if (!deepSearchToggle.active) {
-        await setToggleState(page, SELECTORS.deepSearchToggle, true);
-      }
-      await page.waitForTimeout(500);
+    if (normalizeModelLabel(picker.text) === normalizeModelLabel(model)) {
       return;
     }
 
-    await setToggleState(page, SELECTORS.thinkToggle, false);
-    await setToggleState(page, SELECTORS.deepSearchToggle, false);
+    await page.locator('button[aria-label="Model select"]').first().click();
+    await page.waitForTimeout(750);
+
+    const optionClicked = await clickVisibleModelOption(page, model);
+    if (!optionClicked) {
+      console.warn(`Model "${model}" not found in Grok picker — using current model`);
+      await page.keyboard.press('Escape').catch(() => {});
+      return;
+    }
+
     await page.waitForTimeout(500);
   },
 

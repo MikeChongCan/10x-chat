@@ -18,11 +18,11 @@ describe('Grok Provider', () => {
     it('should have available models', () => {
       expect(GROK_CONFIG.models).toBeDefined();
       expect(GROK_CONFIG.models?.length).toBeGreaterThan(0);
-      expect(GROK_CONFIG.models).toContain('grok-3');
+      expect(GROK_CONFIG.models).toContain('Auto');
     });
 
-    it('should default to grok-3 model', () => {
-      expect(GROK_CONFIG.defaultModel).toBe('grok-3');
+    it('should default to Auto model', () => {
+      expect(GROK_CONFIG.defaultModel).toBe('Auto');
     });
 
     it('should have a 5-minute default timeout', () => {
