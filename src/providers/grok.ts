@@ -48,6 +48,36 @@ function normalizeModelLabel(text: string | null | undefined): string {
   return (text ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
+/**
+ * Dismiss Grok promotional dialogs that can appear over the composer.
+ * Grok renders these in #dialog-portal with a full-screen pointer-event
+ * backdrop, so normal Playwright clicks cannot reach the composer beneath it.
+ */
+async function dismissOverlays(page: Page): Promise<void> {
+  // The portal root itself has no layout box, so Playwright reports it as hidden
+  // even while its fixed-position dialog children are visibly blocking the page.
+  const dialog = page.locator('#dialog-portal [role="dialog"]').first();
+  if (!(await dialog.isVisible().catch(() => false))) return;
+
+  const closeButton = dialog.locator('button[aria-label="Close"]').first();
+
+  if (await closeButton.isVisible().catch(() => false)) {
+    await closeButton.click({ force: true }).catch(() => {});
+  } else {
+    await page.keyboard.press('Escape').catch(() => {});
+  }
+
+  const hidden = await dialog
+    .waitFor({ state: 'hidden', timeout: 1_500 })
+    .then(() => true)
+    .catch(() => false);
+
+  if (!hidden) {
+    await page.keyboard.press('Escape').catch(() => {});
+    await dialog.waitFor({ state: 'hidden', timeout: 1_000 }).catch(() => {});
+  }
+}
+
 async function getVisibleModelPickerState(page: Page): Promise<{ found: boolean; text: string }> {
   return page.evaluate(
     ({ explicitSelector, candidateSelector }) => {
@@ -228,6 +258,8 @@ export const grokActions: ProviderActions = {
   },
 
   async submitPrompt(page: Page, prompt: string): Promise<void> {
+    await dismissOverlays(page);
+
     await submitPromptToComposer(page, prompt, {
       composerSelector: SELECTORS.composer,
       // Grok needs :not([disabled]) on send button
