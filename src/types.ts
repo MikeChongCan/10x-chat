@@ -12,7 +12,7 @@ export type ProfileMode = 'shared' | 'isolated';
 
 // ── Provider Types ──────────────────────────────────────────────
 
-export type ProviderName =
+export type BuiltInProviderName =
   | 'chatgpt'
   | 'gemini'
   | 'claude'
@@ -21,6 +21,14 @@ export type ProviderName =
   | 'notebooklm'
   | 'flow'
   | 'dreamina';
+
+/**
+ * A built-in provider name or a custom provider registered at runtime.
+ *
+ * The intersection preserves editor completions for built-in names while
+ * allowing external packages to use their own provider slug.
+ */
+export type ProviderName = BuiltInProviderName | (string & Record<never, never>);
 
 export interface ProviderConfig {
   name: ProviderName;

@@ -1,18 +1,47 @@
 import { describe, expect, it } from 'vitest';
-import { getProvider, isValidProvider, listProviders } from '../src/providers/registry.js';
+import {
+  getProvider,
+  isValidProvider,
+  listProviders,
+  type Provider,
+  registerProvider,
+} from '../src/index.js';
+
+function createCustomProvider(name: string): Provider {
+  return {
+    config: {
+      name,
+      displayName: 'Custom Chat',
+      url: 'https://chat.example.com',
+      loginUrl: 'https://chat.example.com/login',
+      defaultTimeoutMs: 30_000,
+    },
+    actions: {
+      isLoggedIn: () => Promise.resolve(true),
+      submitPrompt: () => Promise.resolve(),
+      captureResponse: () =>
+        Promise.resolve({
+          text: 'Custom response',
+          markdown: 'Custom response',
+          truncated: false,
+        }),
+    },
+  };
+}
 
 describe('Provider Registry', () => {
   it('should list all providers', () => {
     const providers = listProviders();
-    expect(providers).toContain('chatgpt');
-    expect(providers).toContain('gemini');
-    expect(providers).toContain('claude');
-    expect(providers).toContain('grok');
-    expect(providers).toContain('perplexity');
-    expect(providers).toContain('notebooklm');
-    expect(providers).toContain('flow');
-    expect(providers).toContain('dreamina');
-    expect(providers).toHaveLength(8);
+    expect(providers.slice(0, 8)).toEqual([
+      'chatgpt',
+      'gemini',
+      'claude',
+      'grok',
+      'perplexity',
+      'notebooklm',
+      'flow',
+      'dreamina',
+    ]);
   });
 
   it('should get a provider by name', () => {
@@ -24,10 +53,10 @@ describe('Provider Registry', () => {
   });
 
   it('should throw for unknown provider', () => {
-    expect(() => getProvider('unknown' as never)).toThrow('Unknown provider');
+    expect(() => getProvider('unknown')).toThrow('Unknown provider');
     // Prototype pollution guard
-    expect(() => getProvider('toString' as never)).toThrow('Unknown provider');
-    expect(() => getProvider('__proto__' as never)).toThrow('Unknown provider');
+    expect(() => getProvider('toString')).toThrow('Unknown provider');
+    expect(() => getProvider('__proto__')).toThrow('Unknown provider');
   });
 
   it('should get grok provider by name', () => {
@@ -61,4 +90,30 @@ describe('Provider Registry', () => {
     expect(isValidProvider('toString')).toBe(false);
     expect(isValidProvider('__proto__')).toBe(false);
   });
+
+  it('should register a custom provider through the public API', () => {
+    const provider = createCustomProvider('custom-chat');
+
+    registerProvider(provider);
+
+    expect(isValidProvider('custom-chat')).toBe(true);
+    expect(getProvider('custom-chat')).toBe(provider);
+    expect(listProviders()).toContain('custom-chat');
+  });
+
+  it('should reject duplicate provider names', () => {
+    const provider = createCustomProvider('duplicate-chat');
+    registerProvider(provider);
+
+    expect(() => registerProvider(provider)).toThrow('already registered');
+    expect(() => registerProvider(createCustomProvider('chatgpt'))).toThrow('already registered');
+  });
+
+  it.each(['', '../escape', 'UPPER', 'space name', '-leading', 'trailing-'])(
+    'should reject unsafe provider name %j',
+    (name) => {
+      expect(() => registerProvider(createCustomProvider(name))).toThrow('Invalid provider name');
+      expect(isValidProvider(name)).toBe(false);
+    },
+  );
 });

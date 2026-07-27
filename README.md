@@ -313,6 +313,43 @@ npx 10x-chat@latest skill install
 
 This lets agents like Codex or Claude Code use 10x-chat to query other models for cross-validation, code review, or debugging help.
 
+## Custom Providers
+
+The package API supports out-of-tree providers for custom web chat sites. Register a provider before calling `runChat()`:
+
+```typescript
+import { registerProvider, runChat, type Provider } from '10x-chat';
+
+const customProvider = {
+  config: {
+    name: 'custom-chat',
+    displayName: 'Custom Chat',
+    url: 'https://chat.example.com',
+    loginUrl: 'https://chat.example.com/login',
+    defaultTimeoutMs: 300_000,
+  },
+  actions: {
+    isLoggedIn: (page) => page.locator('[data-user-menu]').isVisible(),
+    submitPrompt: async (page, prompt) => {
+      await page.locator('textarea').fill(prompt);
+      await page.getByRole('button', { name: 'Send' }).click();
+    },
+    captureResponse: async (page, { timeoutMs }) => {
+      const response = page.locator('[data-role="assistant"]').last();
+      await response.waitFor({ timeout: timeoutMs });
+      const text = (await response.innerText()).trim();
+      return { text, markdown: text, truncated: false };
+    },
+  },
+} satisfies Provider;
+
+registerProvider(customProvider);
+const result = await runChat({ provider: 'custom-chat', prompt: 'Hello' });
+console.log(result.response);
+```
+
+Provider names must be 1-64 lowercase letters, numbers, or hyphens and must start and end with a letter or number. Registration is process-local and rejects duplicate names, including attempts to replace built-in providers. A separate provider package can export the provider object or a registration function; the stock CLI does not dynamically discover npm packages.
+
 ## Supported Providers
 
 | Provider | Status | Models | URL |

@@ -1,7 +1,12 @@
 export { type BrowserSession, launchBrowser } from './browser/index.js';
 export { loadConfig, saveConfig } from './config.js';
 export { buildBundle, type ChatResult, runChat } from './core/index.js';
-export { getProvider, isValidProvider, listProviders } from './providers/index.js';
+export {
+  getProvider,
+  isValidProvider,
+  listProviders,
+  registerProvider,
+} from './providers/index.js';
 export {
   createSession,
   getSession,
@@ -9,6 +14,7 @@ export {
 } from './session/index.js';
 export type {
   AppConfig,
+  BuiltInProviderName,
   CapturedResponse,
   ChatOptions,
   ProfileMode,
