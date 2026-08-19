@@ -37,7 +37,11 @@ function createModelPage(evaluateResults: unknown[]) {
 
 describe('Model selection uses Playwright locator clicks to open the menu', () => {
   it('selects a ChatGPT model after opening the picker through a locator click', async () => {
-    const page = createModelPage([{ found: true, text: 'Thinking' }, true]);
+    const page = createModelPage([
+      { chatVisible: false, workVisible: false, chatActive: false, workActive: false },
+      { found: true, text: 'Thinking' },
+      true,
+    ]);
 
     await chatgptActions.selectModel(page as never, 'Instant');
 
@@ -49,7 +53,7 @@ describe('Model selection uses Playwright locator clicks to open the menu', () =
     );
     expect(modelPicker?.first).toHaveBeenCalledTimes(1);
     expect(modelPicker?.click).toHaveBeenCalledTimes(1);
-    expect(page.evaluate).toHaveBeenCalledTimes(2);
+    expect(page.evaluate).toHaveBeenCalledTimes(3);
     expect(page.waitForTimeout).toHaveBeenCalledWith(750);
     expect(page.waitForTimeout).toHaveBeenCalledWith(500);
     expect(page.keyboard.press).not.toHaveBeenCalled();

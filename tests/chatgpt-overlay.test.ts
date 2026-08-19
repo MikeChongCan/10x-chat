@@ -121,7 +121,14 @@ describe('ChatGPT Overlay Dismissal', () => {
         // forced modal removal path in dismissOverlays
         .mockResolvedValueOnce(true)
         // composer visible check in isLoggedIn
-        .mockResolvedValueOnce(true),
+        .mockResolvedValueOnce(true)
+        // account has no Chat/Work mode switcher
+        .mockResolvedValueOnce({
+          chatVisible: false,
+          workVisible: false,
+          chatActive: false,
+          workActive: false,
+        }),
       url: vi.fn(() => 'https://chatgpt.com'),
       title: vi.fn(async () => 'ChatGPT'),
     };
@@ -130,7 +137,7 @@ describe('ChatGPT Overlay Dismissal', () => {
 
     const result = await chatgptActions.isLoggedIn(page as never);
     expect(result).toBe(true);
-    expect(page.evaluate).toHaveBeenCalledTimes(2);
+    expect(page.evaluate).toHaveBeenCalledTimes(3);
   });
 
   it('should handle overlay dismissal errors gracefully', async () => {

@@ -52,7 +52,8 @@ const SELECTORS = {
     '#prompt-textarea.ProseMirror[contenteditable="true"][role="textbox"], #prompt-textarea[contenteditable="true"], [data-testid="composer-input"], div.ProseMirror[contenteditable="true"], textarea, .wcDTda_fallbackTextarea',
   sendButton:
     '#composer-submit-button, button[aria-label="Send prompt"], [data-testid="send-button"]',
-  stopButton: 'button[aria-label="Stop streaming"]',
+  stopButton:
+    'button[aria-label="Stop streaming"], button[data-testid="stop-button"], button[aria-label="Stop answering"]',
   assistantTurn: ASSISTANT_TURN_FALLBACK_SELECTORS.join(', '),
   loginPage: 'button:has-text("Log in"), button:has-text("Sign up")',
   /** Hidden file input — exclude the dedicated photo/camera inputs */
@@ -61,6 +62,85 @@ const SELECTORS = {
     'button[data-testid="model-switcher-dropdown-button"], button[aria-label="Model selector"], button[aria-label*="model" i], button[aria-haspopup="menu"], button[aria-haspopup="listbox"], button[aria-haspopup="dialog"]',
   modelOption: '[role="menuitem"]',
 } as const;
+
+class ChatGptModeError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ChatGptModeError';
+  }
+}
+
+interface ChatModeState {
+  chatVisible: boolean;
+  workVisible: boolean;
+  chatActive: boolean;
+  workActive: boolean;
+}
+
+async function readChatModeState(page: Page): Promise<ChatModeState> {
+  return page.evaluate(() => {
+    const normalize = (value: string | null | undefined) =>
+      (value ?? '').replace(/\s+/g, ' ').trim();
+    const visible = (element: Element | undefined): element is HTMLElement => {
+      if (!(element instanceof HTMLElement) || element.hidden) return false;
+      const style = window.getComputedStyle(element);
+      const rect = element.getBoundingClientRect();
+      return (
+        style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        rect.width > 0 &&
+        rect.height > 0
+      );
+    };
+    const controls = Array.from(document.querySelectorAll('button[role="radio"]'));
+    const chat = controls.find((element) => normalize(element.textContent) === 'Chat');
+    const work = controls.find((element) => normalize(element.textContent) === 'Work');
+    const active = (element: Element | undefined) =>
+      element?.getAttribute('aria-checked') === 'true' ||
+      element?.getAttribute('data-state') === 'on';
+
+    return {
+      chatVisible: visible(chat),
+      workVisible: visible(work),
+      chatActive: visible(chat) && active(chat),
+      workActive: visible(work) && active(work),
+    };
+  });
+}
+
+async function clickChatMode(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    const normalize = (value: string | null | undefined) =>
+      (value ?? '').replace(/\s+/g, ' ').trim();
+    const chat = Array.from(document.querySelectorAll('button[role="radio"]')).find(
+      (element) => normalize(element.textContent) === 'Chat',
+    );
+    if (!(chat instanceof HTMLElement)) return false;
+    chat.click();
+    return true;
+  });
+}
+
+/** Keep ordinary chat delegation off the independently metered Work surface. */
+export async function ensureChatMode(page: Page): Promise<void> {
+  const initial = await readChatModeState(page);
+
+  // Some accounts and the signed-out interface do not expose a mode switcher.
+  if (!initial.chatVisible && !initial.workVisible) return;
+  if (!initial.chatVisible) {
+    throw new ChatGptModeError('ChatGPT Work mode is visible, but Chat mode is unavailable');
+  }
+  if (initial.chatActive && !initial.workActive) return;
+
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    if (!(await clickChatMode(page))) break;
+    await page.waitForTimeout(100);
+    const current = await readChatModeState(page);
+    if (current.chatActive && !current.workActive) return;
+  }
+
+  throw new ChatGptModeError('Could not switch ChatGPT from Work to Chat mode');
+}
 
 const MODEL_OPTION_SCOPE_SELECTORS = [
   '[role="menu"]',
@@ -344,6 +424,7 @@ export class CloudflareBlockedError extends Error {
 export const chatgptActions: ProviderActions = {
   async selectModel(page: Page, model: string): Promise<void> {
     await dismissOverlays(page);
+    await ensureChatMode(page);
 
     const picker = await getVisibleModelPickerState(page);
     if (!picker.found) {
@@ -406,7 +487,10 @@ export const chatgptActions: ProviderActions = {
         }
         return false;
       }, SELECTORS.composer);
-      if (composerVisible) return true;
+      if (composerVisible) {
+        await ensureChatMode(page);
+        return true;
+      }
 
       const loginVisible = await page
         .locator(SELECTORS.loginPage)
@@ -418,12 +502,13 @@ export const chatgptActions: ProviderActions = {
       return false;
     } catch (err) {
       // Re-throw Cloudflare errors so the orchestrator can surface them
-      if (err instanceof CloudflareBlockedError) throw err;
+      if (err instanceof CloudflareBlockedError || err instanceof ChatGptModeError) throw err;
       return false;
     }
   },
 
   async attachFiles(page: Page, filePaths: string[]): Promise<void> {
+    await ensureChatMode(page);
     const fileInput = page.locator(SELECTORS.fileInput).first();
     await fileInput.setInputFiles(filePaths);
     // Wait for upload indicators to appear and settle
@@ -433,6 +518,7 @@ export const chatgptActions: ProviderActions = {
   async submitPrompt(page: Page, prompt: string): Promise<void> {
     // Dismiss onboarding/welcome modals that block the composer
     await dismissOverlays(page);
+    await ensureChatMode(page);
 
     await submitPromptToComposer(page, prompt, {
       composerSelector: SELECTORS.composer,
