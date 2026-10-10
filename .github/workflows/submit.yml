@@ -116,7 +116,7 @@ jobs:
           curl --fail-with-body --silent --show-error \
             -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
             -H "Content-Type: application/json" \
-            -X POST -d '{"publishType":"STAGED_PUBLISH"}' \
+            -X POST -d '{"publishType":"STAGED_PUBLISH","blockOnWarnings":false}' \
             "https://chromewebstore.googleapis.com/v2/$ITEM:publish" \
             -o "$RUNNER_TEMP/chrome-submission.json" || { cat "$RUNNER_TEMP/chrome-submission.json"; exit 1; }
           cat "$RUNNER_TEMP/chrome-submission.json"
