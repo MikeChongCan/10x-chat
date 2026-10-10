@@ -1,12 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Light premium palette — warm neutrals + blue-teal accent */
     --background: 0 0% 99%;
     --foreground: 220 14% 10%;
     --card: 0 0% 100%;
@@ -18,7 +15,7 @@
     --secondary: 220 10% 95%;
     --secondary-foreground: 220 14% 20%;
     --muted: 220 10% 95%;
-    --muted-foreground: 220 8% 50%;
+    --muted-foreground: 220 8% 40%;
     --accent: 220 10% 93%;
     --accent-foreground: 220 14% 10%;
     --destructive: 0 72% 51%;
@@ -26,7 +23,7 @@
     --border: 220 10% 90%;
     --input: 220 10% 90%;
     --ring: 220 14% 10%;
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 }
 
@@ -37,9 +34,9 @@
   body {
     @apply bg-background text-foreground;
     font-family:
-      "Inter",
       system-ui,
       -apple-system,
+      "Segoe UI",
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

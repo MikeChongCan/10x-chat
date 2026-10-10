@@ -143,9 +143,9 @@ describe("OptionsPage", () => {
         const integrationToggle = screen
           .getByText("Integrated summary")
           .parentElement?.parentElement?.querySelector("button")
-        expect(tabGroupToggle).toHaveClass("bg-gray-200")
-        expect(continuousToggle).toHaveClass("bg-violet-600")
-        expect(integrationToggle).toHaveClass("bg-violet-600")
+        expect(tabGroupToggle).toHaveAttribute("aria-checked", "false")
+        expect(continuousToggle).toHaveAttribute("aria-checked", "true")
+        expect(integrationToggle).toHaveAttribute("aria-checked", "true")
       })
     })
   })
@@ -160,9 +160,9 @@ describe("OptionsPage", () => {
 
       const chatGPTCard = screen
         .getByText("ChatGPT")
-        .closest('div[class*="bg-white"]')
+        .closest('[data-service]')
       const toggleButton = chatGPTCard?.querySelector(
-        'button[class*="rounded-full"]'
+        'button[role="switch"]'
       )
 
       expect(toggleButton).toBeInTheDocument()
@@ -180,11 +180,11 @@ describe("OptionsPage", () => {
 
       const chatGPTCard = screen
         .getByText("ChatGPT")
-        .closest('div[class*="bg-white"]')
+        .closest('[data-service]')
       expect(chatGPTCard).toHaveTextContent("Enabled")
 
       const toggleButton = chatGPTCard?.querySelector(
-        'button[class*="rounded-full"]'
+        'button[role="switch"]'
       )
       await user.click(toggleButton as Element)
 
@@ -217,7 +217,7 @@ describe("OptionsPage", () => {
       await user.click(tabsRadio)
 
       expect(tabsRadio).toBeChecked()
-      const tabGroupsRadio = screen.getByLabelText(/Tab Groups/i)
+      const tabGroupsRadio = screen.getByRole("radio", { name: /Tab Groups/i })
       expect(tabGroupsRadio).not.toBeChecked()
     })
   })
@@ -267,9 +267,9 @@ describe("OptionsPage", () => {
 
       const chatGPTCard = screen
         .getByText("ChatGPT")
-        .closest('div[class*="bg-white"]')
+        .closest('[data-service]')
       const toggleButton = chatGPTCard?.querySelector(
-        'button[class*="rounded-full"]'
+        'button[role="switch"]'
       )
       await user.click(toggleButton as Element)
 
@@ -383,12 +383,10 @@ describe("OptionsPage", () => {
 
       const chatGPTCard = screen
         .getByText("ChatGPT")
-        .closest('div[class*="bg-white"]')
-      expect(chatGPTCard).toHaveClass(
-        "border-violet-200",
-        "ring-2",
-        "ring-violet-100"
-      )
+        .closest('[data-service]')
+      expect(
+        chatGPTCard?.querySelector('button[role="switch"]')
+      ).toHaveAttribute("aria-checked", "true")
     })
 
     it("should show recommended badge on tab groups", async () => {
@@ -411,9 +409,8 @@ describe("OptionsPage", () => {
 
       const chatGPTCard = screen
         .getByText("ChatGPT")
-        .closest('div[class*="bg-white"]')
-      const indicator = chatGPTCard?.querySelector('div[class*="bg-green-500"]')
-      expect(indicator).toBeInTheDocument()
+        .closest('[data-service]')
+      expect(chatGPTCard).toHaveTextContent("Enabled")
     })
   })
 })

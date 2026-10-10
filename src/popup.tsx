@@ -37,14 +37,6 @@ interface ServiceConfig {
   claude: boolean
 }
 
-const SERVICE_ICONS: Record<string, string> = {
-  chatgpt: "⚡",
-  grok: "𝕏",
-  gemini: "✦",
-  perplexity: "🔍",
-  claude: "◉"
-}
-
 const sendQueryToBackground = sendToBackground
 
 function IndexPopup() {
@@ -455,18 +447,18 @@ function IndexPopup() {
       />
 
       {/* Header */}
-      <div className="px-4.5 pt-4 pb-3 flex items-center justify-between border-b border-border/50">
+      <div className="px-4.5 pt-4 pb-3 flex items-center justify-between border-b border-border">
         <div className="flex items-center gap-2.5">
           <img
             src={iconUrl}
             alt="10x Chat"
-            className="w-7 h-7 rounded-lg shadow-2xs border border-border/60 object-cover"
+            className="w-7 h-7 rounded-md border border-border object-cover"
           />
           <div>
-            <h1 className="text-xs font-semibold tracking-tight text-foreground leading-none">
+            <h1 className="text-sm font-semibold tracking-tight text-foreground leading-none">
               {i18n("appTitle")}
             </h1>
-            <p className="text-[10px] text-muted-foreground mt-0.5 leading-none">
+            <p className="text-xs text-muted-foreground mt-1 leading-none">
               {i18n("appSubtitle")}
             </p>
           </div>
@@ -498,12 +490,12 @@ function IndexPopup() {
       </div>
 
       {/* Service badges */}
-      <div className="px-4.5 py-2.5 bg-muted/20 border-b border-border/40">
+      <div className="px-4.5 py-2.5 border-b border-border">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+          <span className="text-xs font-medium text-foreground">
             {i18nCount("servicesActive", enabledCount)}
           </span>
-          <span className="text-[10px] text-muted-foreground/70">
+          <span className="text-xs text-muted-foreground tabular-nums">
             {enabledCount}/5
           </span>
         </div>
@@ -513,9 +505,8 @@ function IndexPopup() {
             .map(([service]) => (
               <span
                 key={service}
-                className="inline-flex items-center gap-1 text-[11px] font-medium text-foreground/90 bg-background px-2 py-0.5 rounded-md border border-border/60 shadow-2xs"
+                className="inline-flex items-center text-xs text-foreground bg-background px-2 py-0.5 rounded-md border border-border"
               >
-                <span className="text-[10px] opacity-75">{SERVICE_ICONS[service]}</span>
                 {serviceNames[service as keyof typeof serviceNames]}
               </span>
             ))}
@@ -525,7 +516,7 @@ function IndexPopup() {
       {/* Input zone */}
       <div className="px-4.5 pt-3 pb-2.5">
         <div className="flex items-center justify-between mb-1.5">
-          <Label className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+          <Label className="text-xs font-medium text-foreground">
             {i18n("yourQuestions")}
           </Label>
           {(!isFormEmpty) && (
@@ -539,11 +530,11 @@ function IndexPopup() {
           )}
         </div>
 
-        <div className="relative rounded-xl border border-border/80 focus-within:border-foreground/40 focus-within:ring-1 focus-within:ring-foreground/15 transition-all bg-muted/15 overflow-hidden">
+        <div className="relative rounded-lg border border-input focus-within:border-foreground/50 focus-within:ring-1 focus-within:ring-foreground/20 transition-colors bg-background overflow-hidden">
           {/* Drag & drop overlay */}
           {isDragging && (
-            <div className="absolute inset-0 z-20 bg-background/90 border-2 border-dashed border-primary rounded-xl flex flex-col items-center justify-center gap-1.5 text-center p-4 backdrop-blur-[2px]">
-              <ImageIcon className="w-6 h-6 text-primary animate-bounce" weight="duotone" />
+            <div className="absolute inset-0 z-20 bg-background/90 border-2 border-dashed border-primary rounded-lg flex flex-col items-center justify-center gap-1.5 text-center p-4">
+              <ImageIcon className="w-6 h-6 text-primary" weight="regular" />
               <span className="text-xs font-semibold text-foreground">{i18n("dropImagesTitle")}</span>
               <span className="text-[10px] text-muted-foreground">{i18n("dropImagesHint")}</span>
             </div>
@@ -562,29 +553,29 @@ function IndexPopup() {
             }}
             placeholder={i18n("submitShortcut", [submitKeyHint])}
             rows={3}
-            className="w-full resize-none border-0 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/45 focus-visible:ring-0 p-3 leading-relaxed"
+            className="w-full resize-none border-0 bg-transparent text-xs text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 p-3 leading-relaxed"
             disabled={isLoading}
           />
 
           {/* Bottom input toolbar */}
-          <div className="px-2.5 py-1.5 border-t border-border/40 bg-background/50 flex items-center justify-between">
+          <div className="px-2.5 py-1.5 border-t border-border bg-muted/40 flex items-center justify-between">
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors"
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 title={i18n("attachImagesTooltip")}
               >
                 <Paperclip className="w-3.5 h-3.5" weight="bold" />
                 <span>{i18n("attachImages")}</span>
                 {images.length > 0 && (
-                  <span className="ml-0.5 px-1 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-semibold">
+                  <span className="ml-0.5 px-1 py-0.5 rounded-full bg-foreground text-background text-[10px] font-medium tabular-nums">
                     {images.length}
                   </span>
                 )}
               </button>
             </div>
-            <span className="text-[10px] text-muted-foreground/50 font-mono">
+            <span className="text-[10px] text-muted-foreground font-mono">
               {submitKeyHint}
             </span>
           </div>
@@ -593,7 +584,7 @@ function IndexPopup() {
         {notice && (
           <p
             role="status"
-            className={`mt-1.5 text-[10px] leading-snug ${
+            className={`mt-1.5 text-xs leading-snug ${
               noticeType === "success"
                 ? "text-emerald-600 dark:text-emerald-400 font-medium"
                 : "text-destructive"
@@ -605,7 +596,7 @@ function IndexPopup() {
 
         {/* Attached image preview chips */}
         {images.length > 0 && (
-          <div className="mt-2 pt-1 border-t border-border/30">
+          <div className="mt-3">
             <div className="flex items-center justify-between mb-1.5 text-[10px] text-muted-foreground">
               <span className="font-medium">{i18nCount("attachedImages", images.length)}</span>
               <button
@@ -621,7 +612,7 @@ function IndexPopup() {
               {images.map((img) => (
                 <div
                   key={img.id}
-                  className="relative group shrink-0 w-11 h-11 rounded-lg overflow-hidden border border-border/70 bg-muted/40 shadow-2xs"
+                  className="relative group shrink-0 w-11 h-11 rounded-lg overflow-hidden border border-border bg-muted/40"
                 >
                   <img
                     src={img.dataUrl}
@@ -644,7 +635,7 @@ function IndexPopup() {
       </div>
 
       {/* Options */}
-      <div className="px-4.5 pb-2.5 space-y-1">
+      <div className="px-4.5 pb-3 space-y-0.5">
         <label className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group">
           <Checkbox
             id="closePreviousTabs"
@@ -670,11 +661,11 @@ function IndexPopup() {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <ArrowsClockwise className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" weight="bold" />
-              <span className="text-xs font-medium text-foreground/80 group-hover:text-foreground transition-colors">
+              <span className="text-xs font-medium text-foreground group-hover:text-foreground transition-colors">
                 {i18n("continuousModeLabel")}
               </span>
             </div>
-            <p className="text-[10px] text-muted-foreground leading-snug mt-0.5 ml-[22px]">
+            <p className="text-xs text-muted-foreground leading-snug mt-0.5 ml-[22px]">
               {i18n("continuousModeDescription")}
             </p>
           </div>
@@ -690,11 +681,11 @@ function IndexPopup() {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <ListChecks className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground transition-colors" weight="bold" />
-              <span className="text-xs font-medium text-foreground/80 group-hover:text-foreground transition-colors">
+              <span className="text-xs font-medium text-foreground group-hover:text-foreground transition-colors">
                 {i18n("integrationModeLabel")}
               </span>
             </div>
-            <p className="text-[10px] text-muted-foreground leading-snug mt-0.5 ml-[22px]">
+            <p className="text-xs text-muted-foreground leading-snug mt-0.5 ml-[22px]">
               {i18n("integrationModeDescription")}
             </p>
           </div>
@@ -707,7 +698,7 @@ function IndexPopup() {
           data-testid="submit-button"
           onClick={handleSubmit}
           disabled={isFormEmpty || isLoading || enabledCount === 0}
-          className="w-full h-9 bg-foreground hover:bg-foreground/90 text-background font-medium rounded-lg transition-all shadow-xs disabled:opacity-30 flex items-center justify-center gap-2 text-xs"
+          className="w-full h-9 font-medium disabled:opacity-40 flex items-center justify-center gap-2 text-xs"
         >
           {isLoading ? (
             <>
@@ -716,11 +707,11 @@ function IndexPopup() {
             </>
           ) : (
             <>
-              <RocketLaunch className="h-3.5 w-3.5" weight="duotone" />
+              <RocketLaunch className="h-3.5 w-3.5" weight="bold" />
               {images.length > 0
                 ? i18nCount("submitWithImages", images.length)
                 : i18n("submit")}
-              <span className="ml-auto text-[10px] text-background/60 font-mono">
+              <span className="ml-auto text-[10px] text-primary-foreground/70 font-mono">
                 {submitKeyHint}
               </span>
             </>
@@ -728,7 +719,7 @@ function IndexPopup() {
         </Button>
 
         {enabledCount === 0 && (
-          <p className="text-[11px] text-destructive text-center mt-2">
+          <p className="text-xs text-destructive text-center mt-2">
             {i18n("noServicesEnabled")}{" "}
             <button
               type="button"

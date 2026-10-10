@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react"
 import type { IntegrationSession } from "./background/integration-session"
 import { i18n } from "./lib/i18n"
+import { Button } from "./components/ui/button"
+import { Switch } from "./components/ui/switch"
+import { Check, SpinnerGap } from "@phosphor-icons/react"
 import "./style.css"
 
 interface ServiceConfig {
@@ -15,32 +18,27 @@ const getServiceDetails = () => ({
   chatgpt: {
     name: i18n("serviceNameChatGPT"),
     description: i18n("serviceDescChatGPT"),
-    icon: "⚡",
-    color: "from-green-500 to-emerald-600"
+    icon: "◆",
   },
   grok: {
     name: i18n("serviceNameGrok"),
     description: i18n("serviceDescGrok"),
     icon: "𝕏",
-    color: "from-gray-800 to-black"
   },
   gemini: {
     name: i18n("serviceNameGoogleGemini"),
     description: i18n("serviceDescGemini"),
     icon: "✦",
-    color: "from-blue-500 to-indigo-600"
   },
   perplexity: {
     name: i18n("serviceNamePerplexityAI"),
     description: i18n("serviceDescPerplexity"),
-    icon: "🔍",
-    color: "from-teal-500 to-cyan-600"
+    icon: "◎",
   },
   claude: {
     name: i18n("serviceNameClaude"),
     description: i18n("serviceDescClaude"),
     icon: "◉",
-    color: "from-amber-600 to-orange-600"
   }
 })
 
@@ -143,179 +141,98 @@ function OptionsPage() {
     : ""
   const lastUpdatedDisplay = latestSession ? new Date(latestSession.updatedAt).toLocaleString() : ""
 
+  const sectionClass = "rounded-lg border border-border bg-card"
+  const radioClass = "mt-1 h-3.5 w-3.5 accent-foreground"
+
   return (
-    <div className="min-h-screen bg-slate-50/50 text-foreground antialiased font-sans">
-      <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-2.5 mb-2">
-            <div className="w-9 h-9 bg-foreground text-background rounded-xl flex items-center justify-center shadow-xs">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h1 className="text-lg font-semibold text-gray-900 tracking-tight">{i18n("optionsTitle")}</h1>
+    <div className="min-h-screen bg-background text-foreground antialiased font-sans">
+      <div className="max-w-2xl mx-auto py-10 px-6">
+        <header className="mb-8 flex items-start justify-between gap-6">
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">{i18n("optionsTitle")}</h1>
+            <p className="text-muted-foreground text-sm mt-1">{i18n("optionsSubtitle")}</p>
           </div>
-          <p className="text-gray-500 text-xs">{i18n("optionsSubtitle")}</p>
-        </div>
-
-        {/* Status Bar */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-5 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 bg-violet-600 rounded-lg flex items-center justify-center shadow-xs">
-                <span className="text-white text-xs font-semibold">{enabledCount}</span>
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 text-sm">{i18n("activeServices")}</h3>
-                <p className="text-xs text-gray-500">{i18n("activeServicesDesc")}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900">{enabledCount}/5</div>
-              <div className="text-xs text-gray-500">{i18n("enabled")}</div>
-            </div>
+          <div className="text-right shrink-0 pt-1">
+            <div className="text-sm font-medium tabular-nums">{enabledCount}/5</div>
+            <div className="text-xs text-muted-foreground">{i18n("enabled")}</div>
           </div>
-        </div>
+        </header>
 
-        {/* Services Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {(Object.keys(serviceDetails) as Array<keyof ServiceConfig>).map((serviceKey) => {
-            const service = serviceDetails[serviceKey]
-            const isEnabled = services[serviceKey]
+        <section className="mb-8">
+          <h2 className="text-sm font-semibold mb-1">{i18n("activeServices")}</h2>
+          <p className="text-sm text-muted-foreground mb-3">{i18n("activeServicesDesc")}</p>
+          <div className={`${sectionClass} divide-y divide-border`}>
+            {(Object.keys(serviceDetails) as Array<keyof ServiceConfig>).map((serviceKey) => {
+              const service = serviceDetails[serviceKey]
+              const isEnabled = services[serviceKey]
 
-            return (
-              <div
-                key={serviceKey}
-                className={`bg-white rounded-2xl shadow-sm border transition-all duration-200 ${
-                  isEnabled
-                    ? "border-violet-200 ring-2 ring-violet-100"
-                    : "border-gray-200/60 hover:border-gray-300"
-                }`}
-              >
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <div className={`w-10 h-10 bg-gradient-to-br ${service.color} rounded-xl flex items-center justify-center text-lg text-white shadow-2xs`}>
-                        {service.icon}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 text-sm">{service.name}</h3>
-                        <p className="text-gray-500 text-xs mt-0.5 line-clamp-2">{service.description}</p>
-                      </div>
+              return (
+                <div
+                  key={serviceKey}
+                  data-service={serviceKey}
+                  className="flex items-center justify-between gap-4 px-4 py-3"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 shrink-0 rounded-md border border-border bg-muted flex items-center justify-center text-sm text-foreground">
+                      {service.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-medium text-sm">{service.name}</h3>
+                      <p className="text-muted-foreground text-xs line-clamp-2">{service.description}</p>
                     </div>
                   </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${isEnabled ? "bg-green-500" : "bg-gray-300"}`} />
-                      <span className={`text-xs font-medium ${isEnabled ? "text-green-700" : "text-gray-500"}`}>
-                        {isEnabled ? i18n("serviceEnabled") : i18n("serviceDisabled")}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={isEnabled}
-                      onClick={() => handleToggle(serviceKey)}
-                      className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                        isEnabled ? "bg-violet-600" : "bg-gray-200"
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition-transform ${
-                          isEnabled ? "translate-x-5" : "translate-x-0.5"
-                        }`}
-                      />
-                    </button>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={`text-xs ${isEnabled ? "text-foreground" : "text-muted-foreground"}`}>
+                      {isEnabled ? i18n("serviceEnabled") : i18n("serviceDisabled")}
+                    </span>
+                    <Switch
+                      checked={isEnabled}
+                      aria-label={service.name}
+                      onCheckedChange={() => handleToggle(serviceKey)}
+                    />
                   </div>
                 </div>
+              )
+            })}
+          </div>
+        </section>
+
+        <section className="mb-8">
+          <div className={`${sectionClass} divide-y divide-border`}>
+            <div className="flex items-center justify-between gap-4 px-4 py-3">
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">{i18n("enableTabGroups")}</h3>
+                <p className="text-muted-foreground text-xs mt-0.5">{i18n("enableTabGroupsDesc")}</p>
               </div>
-            )
-          })}
-        </div>
-
-        {/* Tab Groups Setting */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-5 mb-5">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 text-sm">{i18n("enableTabGroups")}</h3>
-              <p className="text-gray-500 text-xs mt-0.5">{i18n("enableTabGroupsDesc")}</p>
+              <Switch checked={useTabGroups} aria-label={i18n("enableTabGroups")} onCheckedChange={setUseTabGroups} />
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={useTabGroups}
-              onClick={() => setUseTabGroups(!useTabGroups)}
-              className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                useTabGroups ? "bg-violet-600" : "bg-gray-200"
-              }`}
-            >
-              <span
-                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition-transform ${
-                  useTabGroups ? "translate-x-5" : "translate-x-0.5"
-                }`}
-              />
-            </button>
-          </div>
-        </div>
-
-        {/* Continuous & Integration Modes */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-5 mb-5">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 text-sm">{i18n("continuousModeLabel")}</h3>
-              <p className="text-gray-500 text-xs mt-0.5">{i18n("continuousModeDescription")}</p>
+            <div className="flex items-center justify-between gap-4 px-4 py-3">
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">{i18n("continuousModeLabel")}</h3>
+                <p className="text-muted-foreground text-xs mt-0.5">{i18n("continuousModeDescription")}</p>
+              </div>
+              <Switch checked={continuousMode} aria-label={i18n("continuousModeLabel")} onCheckedChange={setContinuousMode} />
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={continuousMode}
-              onClick={() => setContinuousMode(!continuousMode)}
-              className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                continuousMode ? "bg-violet-600" : "bg-gray-200"
-              }`}
-            >
-              <span
-                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition-transform ${
-                  continuousMode ? "translate-x-5" : "translate-x-0.5"
-                }`}
-              />
-            </button>
-          </div>
-          <div className="flex items-start justify-between gap-4 mt-5 pt-4 border-t border-gray-100">
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 text-sm">{i18n("integrationModeLabel")}</h3>
-              <p className="text-gray-500 text-xs mt-0.5">{i18n("integrationModeDescription")}</p>
+            <div className="flex items-center justify-between gap-4 px-4 py-3">
+              <div className="flex-1">
+                <h3 className="font-medium text-sm">{i18n("integrationModeLabel")}</h3>
+                <p className="text-muted-foreground text-xs mt-0.5">{i18n("integrationModeDescription")}</p>
+              </div>
+              <Switch checked={integrationMode} aria-label={i18n("integrationModeLabel")} onCheckedChange={setIntegrationMode} />
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={integrationMode}
-              onClick={() => setIntegrationMode(!integrationMode)}
-              className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-1 focus:ring-violet-500 ${
-                integrationMode ? "bg-violet-600" : "bg-gray-200"
-              }`}
-            >
-              <span
-                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-xs transition-transform ${
-                  integrationMode ? "translate-x-5" : "translate-x-0.5"
-                }`}
-              />
-            </button>
           </div>
-        </div>
+        </section>
 
-        {/* Launch Mode Setting */}
-        <div className={`bg-white rounded-2xl shadow-sm border border-gray-200/60 p-5 mb-6 transition-opacity ${
-          useTabGroups ? "opacity-100" : "opacity-50 pointer-events-none"
-        }`}>
-          <h3 className="font-semibold text-gray-900 text-sm mb-1">{i18n("launchMode")}</h3>
-          <p className="text-gray-500 text-xs mb-4">{i18n("launchModeDesc")}</p>
+        <section
+          className={`mb-8 transition-opacity ${
+            useTabGroups ? "opacity-100" : "opacity-50 pointer-events-none"
+          }`}
+        >
+          <h2 className="text-sm font-semibold mb-1">{i18n("launchMode")}</h2>
+          <p className="text-sm text-muted-foreground mb-3">{i18n("launchModeDesc")}</p>
 
-          <div className="space-y-3">
-            <label className="flex items-start space-x-3 cursor-pointer">
+          <div className={`${sectionClass} divide-y divide-border`}>
+            <label className="flex items-start gap-3 px-4 py-3 cursor-pointer">
               <input
                 type="radio"
                 name="launchMode"
@@ -323,20 +240,20 @@ function OptionsPage() {
                 value="tabGroup"
                 checked={launchMode === "tabGroup"}
                 onChange={(e) => setLaunchMode(e.target.value as typeof launchMode)}
-                className="mt-1 text-violet-600 focus:ring-violet-500"
+                className={radioClass}
               />
               <div className="flex-1">
-                <div className="font-medium text-gray-900 text-xs">
+                <div className="font-medium text-sm">
                   {i18n("tabGroupMode")}{" "}
-                  <span className="text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-full ml-1.5 font-normal">
+                  <span className="text-xs text-muted-foreground font-normal ml-1">
                     Recommended
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 mt-0.5">{i18n("tabGroupModeDesc")}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{i18n("tabGroupModeDesc")}</p>
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 cursor-pointer">
+            <label className="flex items-start gap-3 px-4 py-3 cursor-pointer">
               <input
                 type="radio"
                 name="launchMode"
@@ -344,15 +261,15 @@ function OptionsPage() {
                 value="windows"
                 checked={launchMode === "windows"}
                 onChange={(e) => setLaunchMode(e.target.value as typeof launchMode)}
-                className="mt-1 text-violet-600 focus:ring-violet-500"
+                className={radioClass}
               />
               <div className="flex-1">
-                <div className="font-medium text-gray-900 text-xs">{i18n("windowsMode")}</div>
-                <p className="text-xs text-gray-500 mt-0.5">{i18n("windowsModeDesc")}</p>
+                <div className="font-medium text-sm">{i18n("windowsMode")}</div>
+                <p className="text-xs text-muted-foreground mt-0.5">{i18n("windowsModeDesc")}</p>
               </div>
             </label>
 
-            <label className="flex items-start space-x-3 cursor-pointer">
+            <label className="flex items-start gap-3 px-4 py-3 cursor-pointer">
               <input
                 type="radio"
                 name="launchMode"
@@ -360,63 +277,57 @@ function OptionsPage() {
                 value="tabs"
                 checked={launchMode === "tabs"}
                 onChange={(e) => setLaunchMode(e.target.value as typeof launchMode)}
-                className="mt-1 text-violet-600 focus:ring-violet-500"
+                className={radioClass}
               />
               <div className="flex-1">
-                <div className="font-medium text-gray-900 text-xs">{i18n("tabsMode")}</div>
-                <p className="text-xs text-gray-500 mt-0.5">{i18n("tabsModeDesc")}</p>
+                <div className="font-medium text-sm">{i18n("tabsMode")}</div>
+                <p className="text-xs text-muted-foreground mt-0.5">{i18n("tabsModeDesc")}</p>
               </div>
             </label>
           </div>
-        </div>
+        </section>
 
-        {/* Integration Summary */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200/60 p-5 mb-8">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900 text-sm">{i18n("integrationSummaryTitle")}</h3>
+        <section className="mb-8">
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="text-sm font-semibold">{i18n("integrationSummaryTitle")}</h2>
             {lastUpdatedDisplay && (
-              <span className="text-[10px] text-gray-400 font-mono">{lastUpdatedDisplay}</span>
+              <span className="text-xs text-muted-foreground font-mono tabular-nums">{lastUpdatedDisplay}</span>
             )}
           </div>
-          {latestSession ? (
-            <div className="mt-3">
-              <p className="text-xs text-gray-700 font-medium">"{latestSession.query}"</p>
-              {combinedSummaryText && (
-                <p className="text-xs text-gray-500 mt-1 line-clamp-3 leading-relaxed">{combinedSummaryText}</p>
-              )}
-            </div>
-          ) : (
-            <p className="text-xs text-gray-400 mt-2">{i18n("integrationSummaryEmpty")}</p>
-          )}
-        </div>
+          <div className={`${sectionClass} px-4 py-3`}>
+            {latestSession ? (
+              <div>
+                <p className="text-sm font-medium">"{latestSession.query}"</p>
+                {combinedSummaryText && (
+                  <p className="text-sm text-muted-foreground mt-1 line-clamp-3 leading-relaxed">{combinedSummaryText}</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">{i18n("integrationSummaryEmpty")}</p>
+            )}
+          </div>
+        </section>
 
-        {/* Save Button */}
-        <div className="text-center space-y-3">
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="px-6 py-2.5 bg-foreground hover:bg-foreground/90 disabled:bg-gray-400 text-background font-medium rounded-xl transition-all shadow-xs disabled:cursor-not-allowed flex items-center justify-center space-x-2 mx-auto text-xs"
-          >
+        <div className="flex items-center gap-4 border-t border-border pt-5">
+          <Button onClick={handleSave} disabled={isSaving} className="h-9 px-4 text-sm gap-2">
             {isSaving ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-background" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <SpinnerGap className="h-4 w-4 animate-spin" weight="bold" />
                 <span>{i18n("saving")}</span>
               </>
             ) : (
               <>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
+                <Check className="h-4 w-4" weight="bold" />
                 <span>{i18n("saveSettings")}</span>
               </>
             )}
-          </button>
+          </Button>
 
           {saveMessage && (
-            <div className={`text-xs font-medium ${saveMessage.includes("Error") ? "text-red-600" : "text-green-600"}`}>
+            <div
+              role="status"
+              className={`text-sm ${saveMessage.includes("Error") ? "text-destructive" : "text-muted-foreground"}`}
+            >
               {saveMessage}
             </div>
           )}

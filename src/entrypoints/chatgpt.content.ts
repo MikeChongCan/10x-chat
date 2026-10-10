@@ -13,6 +13,7 @@ import { createResponseCapture } from "~/contents/lib/response-observer"
 const DEFAULT_WAIT_TIMEOUT_MS = 30_000
 
 const RESPONSE_SELECTORS = [
+  "[data-markdown-text-style='assistant-message']",
   "[data-message-author-role='assistant']",
   "article[data-testid='conversation-turn'] div[data-testid='markdown']",
   "article[data-testid^='conversation-turn'] [data-message-author-role='assistant']",

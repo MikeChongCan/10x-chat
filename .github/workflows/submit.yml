@@ -8,11 +8,17 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+
+concurrency:
+  group: chrome-web-store-release
+  cancel-in-progress: false
 
 jobs:
   build-and-publish:
     name: Build, Package and Publish Extension
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,10 +26,18 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.4.2"
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
+
+      - name: Validate release tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          VERSION=$(bun -p 'require("./package.json").version')
+          test "$RELEASE_TAG" = "v$VERSION"
 
       - name: Generate extension types
         run: bunx wxt prepare
@@ -41,7 +55,9 @@ jobs:
         id: package
         run: |
           bun run package
-          ZIP_PATH=$(ls .output/*-chrome.zip | head -n 1)
+          VERSION=$(bun -p 'require("./package.json").version')
+          ZIP_PATH=".output/10x-chat-browser-$VERSION-chrome.zip"
+          test -f "$ZIP_PATH"
           echo "zip_path=$ZIP_PATH" >> "$GITHUB_OUTPUT"
 
       - name: Upload Build Artifacts
@@ -58,11 +74,51 @@ jobs:
           files: ${{ steps.package.outputs.zip_path }}
           generate_release_notes: true
 
-      - name: Submit to Chrome Web Store
-        if: env.SUBMIT_KEYS != ''
-        uses: PlasmoHQ/bpp@v3
+      - name: Authenticate Chrome Web Store publisher
+        if: startsWith(github.ref, 'refs/tags/v')
+        id: chrome-auth
+        uses: google-github-actions/auth@v3
         with:
-          keys: ${{ secrets.SUBMIT_KEYS }}
-          artifact: ${{ steps.package.outputs.zip_path }}
+          workload_identity_provider: ${{ vars.CHROME_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.CHROME_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/chromewebstore
+          create_credentials_file: false
+
+      - name: Upload and submit to Chrome Web Store review
+        if: startsWith(github.ref, 'refs/tags/v')
         env:
-          SUBMIT_KEYS: ${{ secrets.SUBMIT_KEYS }}
+          CHROME_ACCESS_TOKEN: ${{ steps.chrome-auth.outputs.access_token }}
+          CHROME_PUBLISHER_ID: ${{ vars.CHROME_PUBLISHER_ID }}
+          CHROME_EXTENSION_ID: ${{ vars.CHROME_EXTENSION_ID }}
+          ZIP_PATH: ${{ steps.package.outputs.zip_path }}
+        run: |
+          ITEM="publishers/$CHROME_PUBLISHER_ID/items/$CHROME_EXTENSION_ID"
+          curl --fail-with-body --silent --show-error \
+            -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
+            -X POST -T "$ZIP_PATH" \
+            "https://chromewebstore.googleapis.com/upload/v2/$ITEM:upload" \
+            -o "$RUNNER_TEMP/chrome-upload.json"
+          cat "$RUNNER_TEMP/chrome-upload.json"
+          UPLOAD_STATE=$(jq -r '.uploadState' "$RUNNER_TEMP/chrome-upload.json")
+          for ATTEMPT in {1..30}; do
+            if [ "$UPLOAD_STATE" = "SUCCEEDED" ]; then break; fi
+            if [ "$UPLOAD_STATE" != "IN_PROGRESS" ]; then exit 1; fi
+            sleep 5
+            curl --fail-with-body --silent --show-error \
+              -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
+              "https://chromewebstore.googleapis.com/v2/$ITEM:fetchStatus" \
+              -o "$RUNNER_TEMP/chrome-status.json"
+            UPLOAD_STATE=$(jq -r '.lastAsyncUploadState' "$RUNNER_TEMP/chrome-status.json")
+            cat "$RUNNER_TEMP/chrome-status.json"
+          done
+          test "$UPLOAD_STATE" = "SUCCEEDED"
+          curl --fail-with-body --silent --show-error \
+            -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -X POST -d '{"publishType":"STAGED_PUBLISH","blockOnWarnings":true}' \
+            "https://chromewebstore.googleapis.com/v2/$ITEM:publish" \
+            -o "$RUNNER_TEMP/chrome-submission.json"
+          cat "$RUNNER_TEMP/chrome-submission.json"
+          jq -e '.state == "PENDING_REVIEW"' "$RUNNER_TEMP/chrome-submission.json"
+          printf '### Chrome Web Store\nVersion submitted for review; publishing is staged.\n' >> "$GITHUB_STEP_SUMMARY"

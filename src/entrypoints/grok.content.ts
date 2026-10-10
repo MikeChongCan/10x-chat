@@ -8,12 +8,14 @@ import {
 import { createResponseCapture } from "~/contents/lib/response-observer"
 
 const RESPONSE_SELECTORS = [
+  "div[data-testid='assistant-message'] .response-content-markdown",
+  "div[data-testid='assistant-message']",
   "div[data-testid='response']",
-  "main article",
-  "div[class*='response']"
+  "main article"
 ]
 
 const SEND_BUTTON_SELECTORS = [
+  "button[data-testid='chat-submit']",
   "button[aria-label='Submit']",
   "button[aria-label='Send']"
 ]

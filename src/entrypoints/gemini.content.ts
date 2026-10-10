@@ -17,6 +17,8 @@ const RESPONSE_SELECTORS = [
 ]
 
 const SEND_BUTTON_SELECTORS = [
+  "gem-icon-button.send-button.submit button",
+  "button:has(mat-icon[fonticon='arrow_upward'])",
   "button.send-button",
   "button[aria-label='Send message']",
   "button:has(mat-icon[fonticon='send'])",
@@ -112,11 +114,15 @@ const waitForGeminiEditor = async (
   })
 }
 
+const isClickable = (button: HTMLElement) =>
+  !(button instanceof HTMLButtonElement && button.disabled) &&
+  button.getAttribute("aria-disabled") !== "true"
+
 const findGeminiSendButton = (): HTMLElement | null => {
   for (const selector of SEND_BUTTON_SELECTORS) {
     try {
       const candidate = document.querySelector(selector)
-      if (candidate instanceof HTMLElement) {
+      if (candidate instanceof HTMLElement && isClickable(candidate)) {
         return candidate
       }
     } catch {
@@ -131,7 +137,7 @@ const findGeminiSendButton = (): HTMLElement | null => {
   )
   for (const icon of icons) {
     const button = icon.closest("button")
-    if (button instanceof HTMLElement) {
+    if (button instanceof HTMLElement && isClickable(button)) {
       return button
     }
   }
