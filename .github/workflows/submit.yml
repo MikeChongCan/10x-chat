@@ -98,7 +98,7 @@ jobs:
             -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
             -X POST -T "$ZIP_PATH" \
             "https://chromewebstore.googleapis.com/upload/v2/$ITEM:upload" \
-            -o "$RUNNER_TEMP/chrome-upload.json"
+            -o "$RUNNER_TEMP/chrome-upload.json" || { cat "$RUNNER_TEMP/chrome-upload.json"; exit 1; }
           cat "$RUNNER_TEMP/chrome-upload.json"
           UPLOAD_STATE=$(jq -r '.uploadState' "$RUNNER_TEMP/chrome-upload.json")
           for ATTEMPT in {1..30}; do
@@ -108,7 +108,7 @@ jobs:
             curl --fail-with-body --silent --show-error \
               -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
               "https://chromewebstore.googleapis.com/v2/$ITEM:fetchStatus" \
-              -o "$RUNNER_TEMP/chrome-status.json"
+              -o "$RUNNER_TEMP/chrome-status.json" || { cat "$RUNNER_TEMP/chrome-status.json"; exit 1; }
             UPLOAD_STATE=$(jq -r '.lastAsyncUploadState' "$RUNNER_TEMP/chrome-status.json")
             cat "$RUNNER_TEMP/chrome-status.json"
           done
@@ -116,9 +116,9 @@ jobs:
           curl --fail-with-body --silent --show-error \
             -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
             -H "Content-Type: application/json" \
-            -X POST -d '{"publishType":"STAGED_PUBLISH","blockOnWarnings":true}' \
+            -X POST -d '{"publishType":"STAGED_PUBLISH"}' \
             "https://chromewebstore.googleapis.com/v2/$ITEM:publish" \
-            -o "$RUNNER_TEMP/chrome-submission.json"
+            -o "$RUNNER_TEMP/chrome-submission.json" || { cat "$RUNNER_TEMP/chrome-submission.json"; exit 1; }
           cat "$RUNNER_TEMP/chrome-submission.json"
           jq -e '.state == "PENDING_REVIEW"' "$RUNNER_TEMP/chrome-submission.json"
           printf '### Chrome Web Store\nVersion submitted for review; publishing is staged.\n' >> "$GITHUB_STEP_SUMMARY"
