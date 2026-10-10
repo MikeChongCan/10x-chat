@@ -94,6 +94,27 @@ jobs:
           ZIP_PATH: ${{ steps.package.outputs.zip_path }}
         run: |
           ITEM="publishers/$CHROME_PUBLISHER_ID/items/$CHROME_EXTENSION_ID"
+          VERSION=$(bun -p 'require("./package.json").version')
+          fetch_status() {
+            curl --fail-with-body --silent --show-error \
+              -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
+              "https://chromewebstore.googleapis.com/v2/$ITEM:fetchStatus" \
+              -o "$RUNNER_TEMP/chrome-status.json" || { cat "$RUNNER_TEMP/chrome-status.json"; exit 1; }
+          }
+          fetch_status
+          if jq -e --arg version "$VERSION" '
+            .submittedItemRevisionStatus |
+            (.state == "PENDING_REVIEW" or .state == "STAGED") and
+            any(.distributionChannels[]?; .crxVersion == $version)
+          ' "$RUNNER_TEMP/chrome-status.json"; then
+            printf '### Chrome Web Store\nVersion %s is already submitted.\n' "$VERSION" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if jq -e '.submittedItemRevisionStatus.state == "PENDING_REVIEW" or .submittedItemRevisionStatus.state == "STAGED"' "$RUNNER_TEMP/chrome-status.json"; then
+            cat "$RUNNER_TEMP/chrome-status.json"
+            echo 'Another version is awaiting review or staged publication. Finish that release before submitting this version.'
+            exit 1
+          fi
           curl --fail-with-body --silent --show-error \
             -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
             -X POST -T "$ZIP_PATH" \
@@ -120,5 +141,19 @@ jobs:
             "https://chromewebstore.googleapis.com/v2/$ITEM:publish" \
             -o "$RUNNER_TEMP/chrome-submission.json" || { cat "$RUNNER_TEMP/chrome-submission.json"; exit 1; }
           cat "$RUNNER_TEMP/chrome-submission.json"
-          jq -e '.state == "PENDING_REVIEW"' "$RUNNER_TEMP/chrome-submission.json"
-          printf '### Chrome Web Store\nVersion submitted for review; publishing is staged.\n' >> "$GITHUB_STEP_SUMMARY"
+          SUBMITTED=false
+          for ATTEMPT in {1..30}; do
+            fetch_status
+            if jq -e --arg version "$VERSION" '
+              .submittedItemRevisionStatus |
+              (.state == "PENDING_REVIEW" or .state == "STAGED") and
+              any(.distributionChannels[]?; .crxVersion == $version)
+            ' "$RUNNER_TEMP/chrome-status.json"; then
+              SUBMITTED=true
+              break
+            fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/chrome-status.json"
+          test "$SUBMITTED" = true
+          printf '### Chrome Web Store\nVersion %s submitted for review; publishing is staged.\n' "$VERSION" >> "$GITHUB_STEP_SUMMARY"
