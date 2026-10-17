@@ -25,6 +25,12 @@ const SEND_BUTTON_SELECTORS = [
   "button:has(mat-icon[data-mat-icon-name='send'])"
 ]
 
+const UPLOAD_CONSENT_DIALOG_SELECTOR = "upload-image-disclaimer-dialog"
+const UPLOAD_CONSENT_TIMEOUT_MS = 120_000
+const ATTACHMENT_CHIP_SELECTOR = "img.gem-attachment-style-img"
+const ATTACHMENT_CHIP_TIMEOUT_MS = 8_000
+const INPUT_SETTLE_MS = 500
+
 const { ensureObserver, setActiveSession } = createResponseCapture(
   "gemini",
   RESPONSE_SELECTORS
@@ -114,6 +120,52 @@ const waitForGeminiEditor = async (
   })
 }
 
+const waitForCondition = async (
+  condition: () => boolean,
+  timeout: number
+): Promise<boolean> => {
+  const deadline = Date.now() + timeout
+  while (Date.now() < deadline) {
+    if (condition()) {
+      return true
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200))
+  }
+  return condition()
+}
+
+const countAttachmentChips = (editor: HTMLElement) =>
+  (editor.closest("fieldset") ?? document).querySelectorAll(
+    ATTACHMENT_CHIP_SELECTOR
+  ).length
+
+const attachGeminiImages = async (
+  editor: HTMLElement,
+  images: ImagePayload[]
+): Promise<boolean> => {
+  const baseline = countAttachmentChips(editor)
+  if (await attachImagesToEditor(editor, images)) {
+    return true
+  }
+
+  if (!document.querySelector(UPLOAD_CONSENT_DIALOG_SELECTOR)) {
+    return false
+  }
+
+  const answered = await waitForCondition(
+    () => !document.querySelector(UPLOAD_CONSENT_DIALOG_SELECTOR),
+    UPLOAD_CONSENT_TIMEOUT_MS
+  )
+  if (!answered) {
+    return false
+  }
+
+  return waitForCondition(
+    () => countAttachmentChips(editor) > baseline,
+    ATTACHMENT_CHIP_TIMEOUT_MS
+  )
+}
+
 const isClickable = (button: HTMLElement) =>
   !(button instanceof HTMLButtonElement && button.disabled) &&
   button.getAttribute("aria-disabled") !== "true"
@@ -160,7 +212,7 @@ const fillGeminiInput = async (
   }
 
   if (images && images.length > 0 && editor instanceof HTMLElement) {
-    const attached = await attachImagesToEditor(editor, images)
+    const attached = await attachGeminiImages(editor, images)
     if (!attached) {
       console.warn(
         `10x Chat: Gemini did not confirm ${images.length} image attachment(s); sending prompt anyway`
@@ -177,6 +229,7 @@ const fillGeminiInput = async (
   }
 
   if (autoSend) {
+    await new Promise((resolve) => setTimeout(resolve, INPUT_SETTLE_MS))
     const sendButton = findGeminiSendButton()
     if (sendButton) {
       sendButton.click()
