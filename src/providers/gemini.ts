@@ -13,8 +13,8 @@ export const GEMINI_CONFIG: ProviderConfig = {
   displayName: 'Gemini',
   url: 'https://gemini.google.com/app',
   loginUrl: 'https://gemini.google.com/app',
-  models: ['3.1 Flash-Lite', '3.5 Flash', '3.1 Pro', 'Deep Think', 'Pro'],
-  defaultModel: '3.5 Flash',
+  models: ['Flash-Lite', 'Flash', 'Pro', 'Argon', 'Deep Think'],
+  defaultModel: 'Flash',
   defaultTimeoutMs: 5 * 60 * 1000,
 };
 
@@ -27,73 +27,123 @@ function normalizeGeminiModeLabel(label: string): string {
 
 function resolveGeminiModeLabel(model: string): string {
   const normalized = normalizeGeminiModeLabel(model);
-  if (normalized === 'fast') return '3.1 Flash-Lite';
-  if (normalized === 'thinking') return '3.5 Flash';
-  if (normalized === 'pro') return '3.1 Pro';
+  if (normalized === 'fast') return 'Flash-Lite';
+  if (normalized === 'thinking') return 'Flash';
   return model;
 }
 
-function geminiModeTestId(model: string): string {
-  const slug = normalizeGeminiModeLabel(resolveGeminiModeLabel(model)).replace(/\s+/g, '-');
-  return `bard-mode-option-${slug}`;
+/**
+ * Version-free key for a Gemini mode label, so "4 Argon", "Argon" and
+ * "Gemini 4 Argon" all compare equal and a version bump (3.5 → 3.8 Flash)
+ * does not break `--model Flash`.
+ */
+export function geminiModeKey(label: string): string {
+  return normalizeGeminiModeLabel(resolveGeminiModeLabel(label))
+    .replace(/^gemini\s+/, '')
+    .replace(/^(\d+\s+)+/, '')
+    .trim();
+}
+
+export function matchesGeminiMode(optionLabel: string, model: string): boolean {
+  if (normalizeGeminiModeLabel(optionLabel) === normalizeGeminiModeLabel(model)) return true;
+  const key = geminiModeKey(model);
+  return key.length > 0 && geminiModeKey(optionLabel) === key;
+}
+
+/** Visible elements inside open menus. Gemini now renders menus in a `[popover]`, not `.cdk-overlay-container`. */
+const GEMINI_MENU_ROOTS = '.cdk-overlay-container, [popover], [role="menu"]';
+
+async function getGeminiModeOptionLabels(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    return (
+      Array.from(
+        document.querySelectorAll(
+          'gem-menu-item[data-mode-id], [data-test-id^="bard-mode-option-"]',
+        ),
+      ) as HTMLElement[]
+    ).map((el) => {
+      if (el.offsetWidth === 0 || el.offsetHeight === 0) return '';
+      const label = el.querySelector('.label') ?? el;
+      return (label.textContent ?? '').replace(/\s+/g, ' ').trim();
+    });
+  });
+}
+
+async function clickGeminiModeOption(page: Page, model: string): Promise<boolean> {
+  const labels = await getGeminiModeOptionLabels(page);
+  const index = labels.findIndex((label) => label && matchesGeminiMode(label, model));
+  if (index < 0) return false;
+  return page.evaluate((i: number) => {
+    const el = document.querySelectorAll(
+      'gem-menu-item[data-mode-id], [data-test-id^="bard-mode-option-"]',
+    )[i];
+    if (!(el instanceof HTMLElement)) return false;
+    el.click();
+    return true;
+  }, index);
 }
 
 async function clickGeminiMenuOption(page: Page, label: string): Promise<boolean> {
   const target = normalizeGeminiModeLabel(label);
-  return page.evaluate((targetLabel: string) => {
-    const overlay = document.querySelector('.cdk-overlay-container') ?? document.body;
+  return page.evaluate(
+    ({ targetLabel, rootsSelector }: { targetLabel: string; rootsSelector: string }) => {
+      const itemSelector =
+        'button,[role="menuitem"],[role="menuitemcheckbox"],[role="option"],mat-option,gem-menu-item,toolbox-drawer-item';
+      const inMenus = Array.from(document.querySelectorAll(rootsSelector)).flatMap(
+        (root) => Array.from(root.querySelectorAll(itemSelector)) as HTMLElement[],
+      );
+      const pool = inMenus.some((el) => el.offsetWidth > 0)
+        ? inMenus
+        : (Array.from(document.body.querySelectorAll(itemSelector)) as HTMLElement[]);
 
-    const candidates = (
-      Array.from(
-        overlay.querySelectorAll(
-          'button,[role="menuitem"],[role="menuitemcheckbox"],[role="option"],mat-option,gem-menu-item,toolbox-drawer-item',
-        ),
-      ) as HTMLElement[]
-    ).sort((a, b) => {
-      const aInteractive = a.tagName === 'BUTTON' || !!a.getAttribute('role');
-      const bInteractive = b.tagName === 'BUTTON' || !!b.getAttribute('role');
-      return Number(bInteractive) - Number(aInteractive);
-    });
-    for (const el of candidates) {
-      const visible = el.offsetWidth > 0 && el.offsetHeight > 0;
-      if (!visible) continue;
-      const text = (el.textContent ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
-      const aria = (el.getAttribute('aria-label') ?? '').toLowerCase();
-      const normalized = `${text} ${aria}`.replace(/[^a-z0-9]+/g, ' ').trim();
-      if (
-        normalized === targetLabel ||
-        normalized.startsWith(`${targetLabel} `) ||
-        normalized.includes(targetLabel)
-      ) {
-        const clickTarget =
-          el.tagName === 'BUTTON' || el.getAttribute('role')
-            ? el
-            : ((el.querySelector(
-                'button,[role="menuitem"],[role="menuitemcheckbox"]',
-              ) as HTMLElement | null) ?? el);
-        clickTarget.click();
-        return true;
+      const candidates = [...new Set(pool)].sort((a, b) => {
+        const aInteractive = a.tagName === 'BUTTON' || !!a.getAttribute('role');
+        const bInteractive = b.tagName === 'BUTTON' || !!b.getAttribute('role');
+        return Number(bInteractive) - Number(aInteractive);
+      });
+      for (const el of candidates) {
+        const visible = el.offsetWidth > 0 && el.offsetHeight > 0;
+        if (!visible) continue;
+        const text = (el.textContent ?? '').replace(/\s+/g, ' ').trim().toLowerCase();
+        const aria = (el.getAttribute('aria-label') ?? '').toLowerCase();
+        const normalized = `${text} ${aria}`.replace(/[^a-z0-9]+/g, ' ').trim();
+        if (
+          normalized === targetLabel ||
+          normalized.startsWith(`${targetLabel} `) ||
+          normalized.includes(targetLabel)
+        ) {
+          const clickTarget =
+            el.tagName === 'BUTTON' || el.getAttribute('role')
+              ? el
+              : ((el.querySelector(
+                  'button,[role="menuitem"],[role="menuitemcheckbox"]',
+                ) as HTMLElement | null) ?? el);
+          clickTarget.click();
+          return true;
+        }
       }
-    }
-    return false;
-  }, target);
+      return false;
+    },
+    { targetLabel: target, rootsSelector: GEMINI_MENU_ROOTS },
+  );
 }
 
 async function getVisibleGeminiMenuLabels(page: Page): Promise<string> {
-  return page.evaluate(() => {
-    const root = document.querySelector('.cdk-overlay-container') ?? document.body;
-    return (
-      Array.from(
-        root.querySelectorAll(
-          'button,[role="menuitem"],[role="menuitemcheckbox"],[role="option"],mat-option',
-        ),
-      ) as HTMLElement[]
-    )
+  return page.evaluate((rootsSelector: string) => {
+    const items = Array.from(document.querySelectorAll(rootsSelector)).flatMap(
+      (root) =>
+        Array.from(
+          root.querySelectorAll(
+            'button,[role="menuitem"],[role="menuitemcheckbox"],[role="option"],mat-option',
+          ),
+        ) as HTMLElement[],
+    );
+    return [...new Set(items)]
       .filter((el) => el.offsetWidth > 0 && el.offsetHeight > 0)
       .map((el) => (el.textContent ?? '').replace(/\s+/g, ' ').trim())
       .filter(Boolean)
       .join(', ');
-  });
+  }, GEMINI_MENU_ROOTS);
 }
 
 async function clickGeminiToolsButton(page: Page): Promise<boolean> {
@@ -313,9 +363,12 @@ export const geminiActions: ProviderActions = {
 
     // Check current mode via page.evaluate (avoids locator.textContent timeout)
     const pickerState = await page.evaluate((sel: string) => {
-      const btn = document.querySelector(sel);
-      if (!(btn instanceof HTMLElement) || btn.offsetWidth === 0) return { found: false, text: '' };
-      return { found: true, text: btn.textContent?.trim() ?? '' };
+      const btn = Array.from(document.querySelectorAll(sel)).find(
+        (el) => el instanceof HTMLElement && el.offsetWidth > 0,
+      );
+      if (!(btn instanceof HTMLElement)) return { found: false, text: '' };
+      const label = btn.querySelector('.picker-primary-text') ?? btn;
+      return { found: true, text: label.textContent?.trim() ?? '' };
     }, SELECTORS.modelPicker);
 
     if (!pickerState.found) {
@@ -328,7 +381,7 @@ export const geminiActions: ProviderActions = {
       return;
     }
 
-    if (normalizeGeminiModeLabel(pickerState.text) === normalizeGeminiModeLabel(targetModel)) {
+    if (matchesGeminiMode(pickerState.text, targetModel)) {
       return; // Already on the requested mode
     }
 
@@ -348,27 +401,10 @@ export const geminiActions: ProviderActions = {
     }
     await page.waitForTimeout(1000);
 
-    // Legacy Gemini menus used readable data-test-ids. Current menus use opaque ids,
-    // so text selection below is the primary path and this remains a harmless fast path.
-    const testId = geminiModeTestId(targetModel);
-    const clicked = await page.evaluate((tid: string) => {
-      const btn = document.querySelector(`button[data-test-id="${tid}"]`);
-      if (btn instanceof HTMLElement && btn.offsetWidth > 0) {
-        btn.click();
-        return true;
-      }
-      return false;
-    }, testId);
-
-    const playwrightTextClicked =
-      clicked ||
-      (await page
-        .locator(`text=${targetModel}`)
-        .first()
-        .click({ timeout: 2_000 })
-        .then(() => true)
-        .catch(() => false));
-    const textClicked = playwrightTextClicked || (await clickGeminiMenuOption(page, targetModel));
+    // Mode items carry opaque data-mode-ids, so match on the visible label with the
+    // version number stripped ("4 Argon" ↔ "Argon"). No loose substring fallback:
+    // "Flash" must never pick "Flash-Lite".
+    const textClicked = await clickGeminiModeOption(page, targetModel);
 
     if (!textClicked) {
       const availableModes = await getVisibleGeminiMenuLabels(page);
@@ -542,7 +578,13 @@ export const geminiActions: ProviderActions = {
     // Step 3: dismiss consent if it appeared, then re-open menu if needed
     await dismissConsentDialog();
     const overlayOpen = await page.evaluate(
-      () => (document.querySelector('.cdk-overlay-container')?.children.length ?? 0) > 0,
+      (rootsSelector: string) =>
+        Array.from(document.querySelectorAll(rootsSelector)).some((el) =>
+          Array.from(el.querySelectorAll('[role="menuitem"]')).some(
+            (item) => item instanceof HTMLElement && item.offsetWidth > 0,
+          ),
+        ),
+      GEMINI_MENU_ROOTS,
     );
     if (!overlayOpen) {
       // Re-focus composer then click upload button again

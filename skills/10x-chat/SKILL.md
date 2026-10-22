@@ -42,7 +42,7 @@ Use `npx` (not `bunx` — symlink conflicts in parallel).
 | Provider | Chat | Image | Research | Video | Models | Notes |
 |----------|------|-------|----------|-------|--------|-------|
 | chatgpt | ✅ | ✅ (DALL-E) | ✅ | ❌ | — | Runs headed by default (anti-bot) |
-| gemini | ✅ | ✅ (Imagen) | ✅ | ❌ | Fast, **Thinking** (default), Deep Think (Ultra tool), Pro | `--model` switches mode |
+| gemini | ✅ | ✅ (Imagen) | ✅ | ❌ | Flash-Lite, **Flash** (default), Pro, Argon, Deep Think (Ultra tool) | `--model` switches mode |
 | claude | ✅ | ❌ | ❌ | ❌ | — | Runs headed by default |
 | grok | ✅ | ✅ | ❌ | ❌ | — | UI changes often, use `@latest` |
 | perplexity | ✅ | ❌ | ✅ | ❌ | — | Best for research with citations |
