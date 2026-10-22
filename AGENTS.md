@@ -54,7 +54,7 @@ Provider actions implement:
 - **Browser daemon**: `chromium.launchServer` persisted to disk for cross-CLI reuse
 - **Tab ref-counting**: Multiple CLI invocations share one Chromium; last tab stops the daemon
 - **Force-click**: Some providers need `click({ force: true })` to bypass overlay interception
-- **Model selection**: Orchestrator calls `selectModel()` before `submitPrompt()` if the provider implements it. Model resolved from `--model` flag → `provider.config.defaultModel`. Gemini supports modes: Fast, Thinking (default), Pro
+- **Model selection**: Orchestrator calls `selectModel()` before `submitPrompt()` if the provider implements it. Model resolved from `--model` flag → `provider.config.defaultModel`. Gemini supports modes: Flash-Lite, Flash (default), Pro, Argon (matched by name; version numbers like "4 Argon" are ignored). Legacy aliases: Fast → Flash-Lite, Thinking → Flash. The mode menu renders in a `[popover]`, not `.cdk-overlay-container`
 
 ## Video Generation
 

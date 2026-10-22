@@ -109,11 +109,15 @@ describe('Provider Registry', () => {
     expect(() => registerProvider(createCustomProvider('chatgpt'))).toThrow('already registered');
   });
 
-  it.each(['', '../escape', 'UPPER', 'space name', '-leading', 'trailing-'])(
-    'should reject unsafe provider name %j',
-    (name) => {
-      expect(() => registerProvider(createCustomProvider(name))).toThrow('Invalid provider name');
-      expect(isValidProvider(name)).toBe(false);
-    },
-  );
+  it.each([
+    '',
+    '../escape',
+    'UPPER',
+    'space name',
+    '-leading',
+    'trailing-',
+  ])('should reject unsafe provider name %j', (name) => {
+    expect(() => registerProvider(createCustomProvider(name))).toThrow('Invalid provider name');
+    expect(isValidProvider(name)).toBe(false);
+  });
 });

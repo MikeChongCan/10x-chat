@@ -67,7 +67,7 @@ npx 10x-chat@latest chat -p "Long task" --timeout 600000 --headed  # 10min timeo
 |------|-------------|
 | `-p, --prompt <text>` | **(required)** The prompt to send |
 | `--provider <name>` | Provider: `chatgpt`, `gemini`, `claude`, `grok`, `perplexity`, `notebooklm` (default: config) |
-| `--model <name>` | Model/mode to select in the provider UI (e.g. Gemini: `Fast`, `Thinking`, `Deep Think`, `Pro`) |
+| `--model <name>` | Model/mode to select in the provider UI (e.g. Gemini: `Flash-Lite`, `Flash`, `Pro`, `Argon`, `Deep Think`) |
 | `-f, --file <paths...>` | Files/globs to bundle as context |
 | `--copy` | Copy bundle to clipboard instead of sending |
 | `--dry-run` | Preview the bundle without sending |
@@ -355,7 +355,7 @@ Provider names must be 1-64 lowercase letters, numbers, or hyphens and must star
 | Provider | Status | Models | URL |
 |----------|--------|--------|-----|
 | ChatGPT | ✅ chat + image | — | chatgpt.com |
-| Gemini | ✅ chat + image | Fast, **Thinking** (default), Deep Think, Pro | gemini.google.com |
+| Gemini | ✅ chat + image | Flash-Lite, **Flash** (default), Pro, Argon, Deep Think | gemini.google.com |
 | Claude | ✅ chat | — | claude.ai |
 | Grok | ✅ chat + image | — | grok.com |
 | Perplexity | ✅ | — | perplexity.ai |

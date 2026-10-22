@@ -71,7 +71,7 @@ npx 10x-chat@latest chat -p "長時間任務" --timeout 600000 --headed  # 10 �
 |------|------|
 | `-p, --prompt <text>` | **（必填）** 要發送的提示 |
 | `--provider <name>` | 提供者：`chatgpt`、`gemini`、`claude`、`grok`、`perplexity`、`notebooklm`（預設：設定檔） |
-| `--model <name>` | 要在 UI 中選擇的模型/模式（例如 Gemini：`Fast`、`Thinking`、`Deep Think`、`Pro`） |
+| `--model <name>` | 要在 UI 中選擇的模型/模式（例如 Gemini：`Flash-Lite`、`Flash`、`Pro`、`Argon`、`Deep Think`） |
 | `-f, --file <paths...>` | 要作為上下文打包的檔案/glob 模式 |
 | `--copy` | 將打包內容複製到剪貼簿而不發送 |
 | `--dry-run` | 預覽打包內容但不發送 |
@@ -242,7 +242,7 @@ npx 10x-chat@latest skill install
 | 提供者 | 狀態 | 模型 | 網址 |
 |--------|------|------|------|
 | ChatGPT | ✅ 對話 + 圖片 | — | chatgpt.com |
-| Gemini | ✅ 對話 + 圖片 | Fast、**Thinking**（預設）、Deep Think、Pro | gemini.google.com |
+| Gemini | ✅ 對話 + 圖片 | Flash-Lite、**Flash**（預設）、Pro、Argon、Deep Think | gemini.google.com |
 | Claude | ✅ 對話 | — | claude.ai |
 | Grok | ✅ 對話 + 圖片 | — | grok.com |
 | Perplexity | ✅ | — | perplexity.ai |
