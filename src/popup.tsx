@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
 import { sendToBackground } from "./lib/messaging"
 import { i18n, i18nCount } from "./lib/i18n"
+import { cn } from "./lib/utils"
 import { Button } from "./components/ui/button"
 import { Textarea } from "./components/ui/textarea"
 import { Checkbox } from "./components/ui/checkbox"
@@ -58,6 +59,7 @@ function IndexPopup() {
     perplexity: true,
     claude: true
   })
+  const [selectedServices, setSelectedServices] = useState<Array<keyof ServiceConfig>>([])
 
   const CACHE_KEY = "cachedQuery"
   const CACHE_IMAGES_KEY = "cachedImages"
@@ -345,6 +347,12 @@ function IndexPopup() {
     chrome.storage.sync.set({ integrationMode: newValue })
   }
 
+  const handleServiceChipClick = (service: keyof ServiceConfig) => {
+    setSelectedServices((prev) =>
+      prev.includes(service) ? prev.filter((item) => item !== service) : [...prev, service]
+    )
+  }
+
   const handleSubmit = () => {
     const trimmedQuery = query.trim()
     if (trimmedQuery === "" && images.length === 0) return
@@ -355,9 +363,14 @@ function IndexPopup() {
       query: string
       closePreviousTabs: boolean
       images?: Array<{ name: string; type: string; dataUrl: string }>
+      services?: Array<keyof ServiceConfig>
     } = {
       query: trimmedQuery || i18n("imagesOnlyPrompt"),
       closePreviousTabs
+    }
+
+    if (activeSelection.length > 0) {
+      body.services = activeSelection
     }
 
     if (images.length > 0) {
@@ -413,6 +426,8 @@ function IndexPopup() {
   }
 
   const enabledCount = Object.values(enabledServices).filter(Boolean).length
+  const activeSelection = selectedServices.filter((service) => enabledServices[service])
+  const targetCount = activeSelection.length > 0 ? activeSelection.length : enabledCount
   const serviceNames = {
     chatgpt: i18n("serviceNameChatGPT"),
     grok: i18n("serviceNameGrok"), 
@@ -493,24 +508,54 @@ function IndexPopup() {
       <div className="px-4.5 py-2.5 border-b border-border">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-xs font-medium text-foreground">
-            {i18nCount("servicesActive", enabledCount)}
+            {activeSelection.length > 0
+              ? i18nCount("servicesSelected", activeSelection.length)
+              : i18nCount("servicesActive", enabledCount)}
           </span>
           <span className="text-xs text-muted-foreground tabular-nums">
-            {enabledCount}/5
+            {targetCount}/5
           </span>
         </div>
         <div className="flex flex-wrap gap-1">
-          {Object.entries(enabledServices)
+          {(Object.entries(enabledServices) as Array<[keyof ServiceConfig, boolean]>)
             .filter(([_, enabled]) => enabled)
-            .map(([service]) => (
-              <span
-                key={service}
-                className="inline-flex items-center text-xs text-foreground bg-background px-2 py-0.5 rounded-md border border-border"
-              >
-                {serviceNames[service as keyof typeof serviceNames]}
-              </span>
-            ))}
+            .map(([service]) => {
+              const isSelected = activeSelection.includes(service)
+              const isDimmed = activeSelection.length > 0 && !isSelected
+              return (
+                <button
+                  key={service}
+                  type="button"
+                  data-testid={`service-chip-${service}`}
+                  aria-pressed={isSelected}
+                  onClick={() => handleServiceChipClick(service)}
+                  title={i18n("serviceChipHint")}
+                  className={cn(
+                    "inline-flex items-center text-xs px-2 py-0.5 rounded-md border transition-colors",
+                    isSelected
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-background text-foreground border-border hover:bg-muted",
+                    isDimmed && "opacity-50"
+                  )}
+                >
+                  {serviceNames[service]}
+                </button>
+              )
+            })}
         </div>
+        <p className="mt-1.5 text-[10px] text-muted-foreground">
+          {activeSelection.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => setSelectedServices([])}
+              className="underline hover:text-foreground transition-colors"
+            >
+              {i18n("serviceChipClear")}
+            </button>
+          ) : (
+            i18n("serviceChipHint")
+          )}
+        </p>
       </div>
 
       {/* Input zone */}

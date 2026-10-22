@@ -176,6 +176,33 @@ describe("IndexPopup", () => {
       })
     })
 
+    it("should ask only the clicked services", async () => {
+      render(<IndexPopup />)
+
+      const textarea = screen.getByPlaceholderText(/Ask anything/)
+      await user.click(screen.getByTestId("service-chip-gemini"))
+      await user.click(screen.getByTestId("service-chip-claude"))
+      expect(screen.getByTestId("service-chip-gemini")).toHaveAttribute("aria-pressed", "true")
+      expect(screen.getByText("Asking only 2")).toBeInTheDocument()
+
+      await user.click(screen.getByTestId("service-chip-claude"))
+      await user.type(textarea, "Only Gemini")
+      await user.click(screen.getByText("Submit"))
+
+      expect(sendMock).toHaveBeenCalledWith({
+        name: "launchQueries",
+        body: { query: "Only Gemini", closePreviousTabs: false, services: ["gemini"] }
+      })
+    })
+
+    it("should clear the service selection", async () => {
+      render(<IndexPopup />)
+
+      await user.click(screen.getByTestId("service-chip-grok"))
+      await user.click(screen.getByText("Ask all active services"))
+      expect(screen.getByTestId("service-chip-grok")).toHaveAttribute("aria-pressed", "false")
+    })
+
     it("should submit query with keyboard shortcut (Mac)", async () => {
       render(<IndexPopup />)
 

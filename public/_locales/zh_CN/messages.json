@@ -25,6 +25,24 @@
       }
     }
   },
+  "servicesSelected": {
+    "message": "仅询问 $COUNT$ 个",
+    "description": "Number of services selected for this question",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "serviceChipHint": {
+    "message": "点击服务，只询问它",
+    "description": "Hint under the service chips"
+  },
+  "serviceChipClear": {
+    "message": "询问所有已启用的服务",
+    "description": "Clear the service chip selection"
+  },
   "settings": {
     "message": "设置",
     "description": "Settings button text"

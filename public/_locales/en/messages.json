@@ -25,6 +25,24 @@
       }
     }
   },
+  "servicesSelected": {
+    "message": "Asking only $COUNT$",
+    "description": "Number of services selected for this question",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "serviceChipHint": {
+    "message": "Click a service to ask only it",
+    "description": "Hint under the service chips"
+  },
+  "serviceChipClear": {
+    "message": "Ask all active services",
+    "description": "Clear the service chip selection"
+  },
   "settings": {
     "message": "Settings",
     "description": "Settings button text"

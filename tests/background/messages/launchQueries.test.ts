@@ -114,6 +114,17 @@ describe("launchQueries handler", () => {
       })
     })
 
+    it("should ask only the requested services", async () => {
+      mockReq.body = { query: "test query", services: ["grok", "gemini"] }
+
+      await handler(mockReq, mockRes)
+
+      expect(chrome.tabs.create).toHaveBeenCalledTimes(1)
+      expect(chrome.tabs.create).toHaveBeenCalledWith({
+        url: "https://grok.com/"
+      })
+    })
+
     it("should create tabs for enabled services only", async () => {
       await handler(mockReq, mockRes)
 

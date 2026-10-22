@@ -205,6 +205,7 @@ const handler = async (
     sessionId?: string
     mode?: "tabGroup" | "windows" | "tabs"
     images?: ImagePayload[]
+    services?: ServiceType[]
   }>,
   res?: MessageResponse<{ status: string; message: string }>
 ) => {
@@ -274,7 +275,12 @@ const handler = async (
     }
   ]
 
-  const services = allServices.filter((service) => service.enabled)
+  const requestedServices = Array.isArray(req.body?.services) ? req.body.services : []
+  const services = allServices.filter(
+    (service) =>
+      service.enabled &&
+      (requestedServices.length === 0 || requestedServices.includes(service.type))
+  )
 
   if (services.length === 0) {
     if (res && typeof res.send === "function") {
