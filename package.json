@@ -1,7 +1,7 @@
 {
   "name": "10x-chat-browser",
   "displayName": "__MSG_extensionName__",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "__MSG_extensionDescription__",
   "license": "MIT",
   "author": "Mike Chong <dh.chong.can@gmail.com>",

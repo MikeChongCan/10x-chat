@@ -110,9 +110,20 @@ jobs:
             printf '### Chrome Web Store\nVersion %s is already submitted.\n' "$VERSION" >> "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
+          if jq -e '.submittedItemRevisionStatus.state == "STAGED"' "$RUNNER_TEMP/chrome-status.json"; then
+            # An older approved version is held. This newer version replaces it.
+            cat "$RUNNER_TEMP/chrome-status.json"
+            curl --fail-with-body --silent --show-error \
+              -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
+              -X POST -H "Content-Length: 0" \
+              "https://chromewebstore.googleapis.com/v2/$ITEM:cancelSubmission" \
+              -o "$RUNNER_TEMP/chrome-cancel.json" || { cat "$RUNNER_TEMP/chrome-cancel.json"; exit 1; }
+            cat "$RUNNER_TEMP/chrome-cancel.json"
+            fetch_status
+          fi
           if jq -e '.submittedItemRevisionStatus.state == "PENDING_REVIEW" or .submittedItemRevisionStatus.state == "STAGED"' "$RUNNER_TEMP/chrome-status.json"; then
             cat "$RUNNER_TEMP/chrome-status.json"
-            echo 'Another version is awaiting review or staged publication. Finish that release before submitting this version.'
+            echo 'Another version is awaiting review. Finish that review before submitting this version.'
             exit 1
           fi
           curl --fail-with-body --silent --show-error \
@@ -137,7 +148,7 @@ jobs:
           curl --fail-with-body --silent --show-error \
             -H "Authorization: Bearer $CHROME_ACCESS_TOKEN" \
             -H "Content-Type: application/json" \
-            -X POST -d '{"publishType":"STAGED_PUBLISH","blockOnWarnings":false}' \
+            -X POST -d '{"publishType":"DEFAULT_PUBLISH","blockOnWarnings":false}' \
             "https://chromewebstore.googleapis.com/v2/$ITEM:publish" \
             -o "$RUNNER_TEMP/chrome-submission.json" || { cat "$RUNNER_TEMP/chrome-submission.json"; exit 1; }
           cat "$RUNNER_TEMP/chrome-submission.json"
@@ -156,4 +167,4 @@ jobs:
           done
           cat "$RUNNER_TEMP/chrome-status.json"
           test "$SUBMITTED" = true
-          printf '### Chrome Web Store\nVersion %s submitted for review; publishing is staged.\n' "$VERSION" >> "$GITHUB_STEP_SUMMARY"
+          printf '### Chrome Web Store\nVersion %s submitted for review; it publishes automatically after approval.\n' "$VERSION" >> "$GITHUB_STEP_SUMMARY"
