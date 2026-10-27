@@ -68,6 +68,9 @@ describe('ChatGPT Provider', () => {
       expect(response.text).toBe('Hello');
       expect(response.markdown).toBe('<p>Hello</p>');
       expect(page.evaluate).toHaveBeenCalled();
+      expect(page.locator).toHaveBeenCalledWith(
+        expect.stringContaining('data-testid="stop-button"'),
+      );
     });
 
     it('streams chunk deltas from evaluate-based snapshots', async () => {
