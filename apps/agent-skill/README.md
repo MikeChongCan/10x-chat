@@ -420,7 +420,7 @@ git tag agent-skill-v<version>
 git push origin main agent-skill-v<version>
 ```
 
-Requires `NPM_TOKEN` secret in the GitHub repository settings.
+Publishing uses npm trusted publishing (OIDC). No token is stored. The trusted publisher on npmjs.com is `MikeChongCan/10x-chat`, workflow `agent-skill-release.yml`.
 
 ## Disclaimer
 
