@@ -307,7 +307,7 @@ git tag agent-skill-v<version>
 git push origin main agent-skill-v<version>
 ```
 
-需要在 GitHub 儲存庫設定中配置 `NPM_TOKEN` 密鑰。
+發佈使用 npm trusted publishing（OIDC），不需要儲存 token。npmjs.com 上的 trusted publisher 為 `MikeChongCan/10x-chat`，workflow 為 `agent-skill-release.yml`。
 
 ## 免責聲明
 

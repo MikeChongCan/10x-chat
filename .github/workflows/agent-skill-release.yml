@@ -48,10 +48,13 @@ jobs:
       - name: Build
         run: bun run build
 
+      # npm trusted publishing (OIDC): no token. Needs npm >= 11.5.1 and the
+      # trusted publisher set on npmjs.com for this repo and workflow file.
+      - name: Update npm
+        run: npm install -g npm@11
+
       - name: Publish to npm
         run: npm publish --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
