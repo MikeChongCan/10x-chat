@@ -93,8 +93,8 @@ Skip copying and pasting prompts between multiple browser tabs. Compare response
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/MikeChongCan/10x-chat-browser.git
-   cd 10x-chat-browser
+   git clone https://github.com/MikeChongCan/10x-chat.git
+   cd 10x-chat/apps/chrome-extension
    ```
 
 2. **Install dependencies:**

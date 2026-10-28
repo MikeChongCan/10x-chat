@@ -376,11 +376,13 @@ bun run build                   # Build for production
 
 ## Publishing
 
-Releases are automated via GitHub Actions. Push a version tag to publish:
+Releases are automated via GitHub Actions. Push an `agent-skill-v<version>` tag to publish:
 
 ```bash
-npm version patch   # or minor / major
-git push --follow-tags
+npm version patch --no-git-tag-version   # or minor / major
+git commit -am "chore(agent-skill): bump version to <version>"
+git tag agent-skill-v<version>
+git push origin main agent-skill-v<version>
 ```
 
 Requires `NPM_TOKEN` secret in the GitHub repository settings.

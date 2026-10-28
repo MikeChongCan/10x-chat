@@ -1,0 +1,43 @@
+name: Chrome Extension CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/chrome-extension/**"
+      - ".github/workflows/chrome-extension-*.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/chrome-extension/**"
+      - ".github/workflows/chrome-extension-*.yml"
+
+defaults:
+  run:
+    working-directory: apps/chrome-extension
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.2"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate extension types
+        run: bunx wxt prepare
+
+      - name: Type check
+        run: bun run compile
+
+      - name: Run unit tests
+        run: bun run test
+
+      - name: Build extension
+        run: bun run build

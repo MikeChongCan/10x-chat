@@ -263,11 +263,13 @@ bun run build                   # 建置正式版本
 
 ## 發佈
 
-發佈透過 GitHub Actions 自動化。推送版本標籤即可發佈：
+發佈透過 GitHub Actions 自動化。推送 `agent-skill-v<version>` 標籤即可發佈：
 
 ```bash
-npm version patch   # 或 minor / major
-git push --follow-tags
+npm version patch --no-git-tag-version   # 或 minor / major
+git commit -am "chore(agent-skill): bump version to <version>"
+git tag agent-skill-v<version>
+git push origin main agent-skill-v<version>
 ```
 
 需要在 GitHub 儲存庫設定中配置 `NPM_TOKEN` 密鑰。

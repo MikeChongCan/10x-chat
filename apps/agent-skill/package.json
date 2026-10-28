@@ -53,9 +53,10 @@
   "author": "Mike Chong",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MikeChongCan/10x-chat.git"
+    "url": "https://github.com/MikeChongCan/10x-chat.git",
+    "directory": "apps/agent-skill"
   },
-  "homepage": "https://github.com/MikeChongCan/10x-chat#readme",
+  "homepage": "https://github.com/MikeChongCan/10x-chat/tree/main/apps/agent-skill#readme",
   "bugs": {
     "url": "https://github.com/MikeChongCan/10x-chat/issues"
   },

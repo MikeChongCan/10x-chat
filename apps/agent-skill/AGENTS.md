@@ -86,12 +86,13 @@ npx biome check --write src/               # auto-fix lint + format
 ## Release Flow
 
 ```bash
+# Run from apps/agent-skill.
 # 1. Bump version in package.json
 # 2. Commit with descriptive message
 git add -A && git commit -m "feat: ..."
 # 3. Tag and push — CI publishes to npm on tag
-git tag v<version>
-git push origin main --tags
+git tag agent-skill-v<version>
+git push origin main agent-skill-v<version>
 ```
 
 CI pipeline (GitHub Actions): checkout → install → typecheck → lint → **test** → build → publish to npm → GitHub Release.

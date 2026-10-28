@@ -9,6 +9,10 @@ These instructions apply to the 10x Chat Browser extension located in this direc
 - Run unit tests with `bun run test`; use `bun run test:watch` or `bun run test:coverage` as needed.
 - Typecheck with `bun run compile`.
 
+## Release
+- Bump `version` in `package.json`, commit, then push a `chrome-extension-v<version>` tag.
+- `.github/workflows/chrome-extension-release.yml` builds the zip, creates a GitHub Release, and submits it to the Chrome Web Store.
+
 ## Code Style
 - Follow WXT + React conventions; entrypoints live under `src/entrypoints/`, components and shared logic live under `src/`.
 - Stick to Tailwind CSS utilities and shadcn-style components already present in the project.
