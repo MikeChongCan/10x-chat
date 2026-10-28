@@ -17,7 +17,7 @@ export function createMcpCommand(version?: string): Command {
 
       transport.onclose = () => {
         // Client is gone. Close running browser work the same way Ctrl+C does.
-        const stop = jobs.runningCount() > 0 ? stopDaemon().catch(() => {}) : Promise.resolve();
+        const stop = jobs.activeCount() > 0 ? stopDaemon().catch(() => {}) : Promise.resolve();
         void stop.finally(() => process.exit(0));
       };
       process.stdin.on('end', () => {

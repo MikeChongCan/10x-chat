@@ -29,6 +29,8 @@ interface Job {
   result?: unknown;
   error?: ToolErrorBody;
   controller: AbortController;
+  /** True until the runner's promise settles, even after cancel. */
+  active: boolean;
   done: Promise<void>;
   settle: () => void;
 }
@@ -67,6 +69,7 @@ export class JobStore {
       progress: 'started',
       startedAt: this.now(),
       controller: new AbortController(),
+      active: true,
       done,
       settle,
     };
@@ -85,7 +88,10 @@ export class JobStore {
       .then(
         (result) => this.finish(job, 'done', result),
         (error) => this.finish(job, 'failed', undefined, toErrorBody(error)),
-      );
+      )
+      .finally(() => {
+        job.active = false;
+      });
     return id;
   }
 
@@ -144,9 +150,10 @@ export class JobStore {
     return this.view(job);
   }
 
-  runningCount(): number {
+  /** Jobs whose runner has not settled yet. A cancelled job counts until its browser work ends. */
+  activeCount(): number {
     let n = 0;
-    for (const job of this.jobs.values()) if (job.status === 'running') n++;
+    for (const job of this.jobs.values()) if (job.active) n++;
     return n;
   }
 

@@ -86,10 +86,23 @@ describe('JobStore', () => {
     });
     await sleep(5);
     expect(jobs.get(id)?.progress).toBe('half');
-    expect(jobs.runningCount()).toBe(1);
+    expect(jobs.activeCount()).toBe(1);
     await jobs.wait(id, 1000);
     now += 500;
     jobs.start('chat', async () => 2);
     expect(jobs.has(id)).toBe(false);
+  });
+
+  it('counts a cancelled job as active until its runner settles', async () => {
+    const jobs = new JobStore();
+    const id = jobs.start('chat', async () => {
+      await sleep(30);
+      return 1;
+    });
+    jobs.cancel(id);
+    expect(jobs.get(id)?.status).toBe('cancelled');
+    expect(jobs.activeCount()).toBe(1);
+    await sleep(50);
+    expect(jobs.activeCount()).toBe(0);
   });
 });
