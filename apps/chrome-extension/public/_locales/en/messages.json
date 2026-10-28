@@ -1,0 +1,362 @@
+{
+  "extensionName": {
+    "message": "10xWise Multi-AI Chat",
+    "description": "Extension name"
+  },
+  "extensionDescription": {
+    "message": "10xWise Multi-AI Chat allows you to chat with multiple AI models on web instantly with one extension.",
+    "description": "Extension description"
+  },
+  "appTitle": {
+    "message": "10x Chat",
+    "description": "Application title"
+  },
+  "appSubtitle": {
+    "message": "Ask several AI assistants at once",
+    "description": "Application subtitle"
+  },
+  "servicesActive": {
+    "message": "$COUNT$ services active",
+    "description": "Number of active services",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "servicesSelected": {
+    "message": "Asking only $COUNT$",
+    "description": "Number of services selected for this question",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "serviceChipHint": {
+    "message": "Click a service to ask only it",
+    "description": "Hint under the service chips"
+  },
+  "serviceChipClear": {
+    "message": "Ask all active services",
+    "description": "Clear the service chip selection"
+  },
+  "settings": {
+    "message": "Settings",
+    "description": "Settings button text"
+  },
+  "yourQuestions": {
+    "message": "Your Questions",
+    "description": "Input label"
+  },
+  "askAnything": {
+    "message": "Ask anything...",
+    "description": "Input placeholder"
+  },
+  "submitShortcut": {
+    "message": "Ask anything... ($SHORTCUT$ to submit)",
+    "description": "Input placeholder with shortcut",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Cmd+Enter"
+      }
+    }
+  },
+  "submit": {
+    "message": "Submit",
+    "description": "Submit button text"
+  },
+  "launching": {
+    "message": "Launching...",
+    "description": "Loading state text"
+  },
+  "noServicesEnabled": {
+    "message": "No services enabled.",
+    "description": "No services warning"
+  },
+  "enableServices": {
+    "message": "Enable services",
+    "description": "Enable services link text"
+  },
+  "serviceNameChatGPT": {
+    "message": "ChatGPT",
+    "description": "ChatGPT service name"
+  },
+  "serviceNameGrok": {
+    "message": "Grok",
+    "description": "Grok service name"
+  },
+  "serviceNameGemini": {
+    "message": "Gemini",
+    "description": "Gemini service name"
+  },
+  "serviceNamePerplexity": {
+    "message": "Perplexity",
+    "description": "Perplexity service name"
+  },
+  "serviceNameClaude": {
+    "message": "Claude",
+    "description": "Claude service name"
+  },
+  "optionsTitle": {
+    "message": "10x Chat Settings",
+    "description": "Options page title"
+  },
+  "optionsSubtitle": {
+    "message": "Configure which AI services to query simultaneously",
+    "description": "Options page subtitle"
+  },
+  "activeServices": {
+    "message": "Active Services",
+    "description": "Active services header"
+  },
+  "activeServicesDesc": {
+    "message": "Services currently enabled for queries",
+    "description": "Active services description"
+  },
+  "enabled": {
+    "message": "enabled",
+    "description": "Enabled count text"
+  },
+  "serviceEnabled": {
+    "message": "Enabled",
+    "description": "Service enabled status"
+  },
+  "serviceDisabled": {
+    "message": "Disabled",
+    "description": "Service disabled status"
+  },
+  "saveSettings": {
+    "message": "Save Settings",
+    "description": "Save button text"
+  },
+  "saving": {
+    "message": "Saving...",
+    "description": "Saving state text"
+  },
+  "settingsSaved": {
+    "message": "Settings saved successfully!",
+    "description": "Success message"
+  },
+  "errorSaving": {
+    "message": "Error saving settings",
+    "description": "Error message"
+  },
+  "changesEffectNext": {
+    "message": "Changes will take effect the next time you use the extension",
+    "description": "Changes effect notice"
+  },
+  "serviceDescChatGPT": {
+    "message": "OpenAI's conversational AI assistant",
+    "description": "ChatGPT service description"
+  },
+  "serviceDescGrok": {
+    "message": "X's AI assistant with real-time information",
+    "description": "Grok service description"
+  },
+  "serviceDescGemini": {
+    "message": "Google's advanced AI model",
+    "description": "Gemini service description"
+  },
+  "serviceDescPerplexity": {
+    "message": "AI-powered search and research assistant",
+    "description": "Perplexity service description"
+  },
+  "serviceDescClaude": {
+    "message": "Anthropic's helpful, harmless, and honest AI",
+    "description": "Claude service description"
+  },
+  "serviceNameGoogleGemini": {
+    "message": "Google Gemini",
+    "description": "Google Gemini full service name"
+  },
+  "serviceNamePerplexityAI": {
+    "message": "Perplexity AI",
+    "description": "Perplexity AI full service name"
+  },
+  "clearQuery": {
+    "message": "Clear",
+    "description": "Clear query button tooltip"
+  },
+  "closePreviousTabs": {
+    "message": "Close previous tabs",
+    "description": "Close previous tabs checkbox label"
+  },
+  "enableTabGroups": {
+    "message": "Enable Tab Groups",
+    "description": "Enable tab groups toggle title"
+  },
+  "enableTabGroupsDesc": {
+    "message": "Automatically group AI service tabs together for better organization",
+    "description": "Enable tab groups toggle description"
+  },
+  "continuousModeLabel": {
+    "message": "Continuous conversation",
+    "description": "Continuous mode label"
+  },
+  "continuousModeDescription": {
+    "message": "Reuse existing chats to keep context in a single thread.",
+    "description": "Continuous mode description"
+  },
+  "integrationModeLabel": {
+    "message": "Integrated summary",
+    "description": "Integration mode label"
+  },
+  "integrationModeDescription": {
+    "message": "Collect answers from every enabled AI and build a combined overview.",
+    "description": "Integration mode description"
+  },
+  "integrationSummaryTitle": {
+    "message": "Latest integrated summary",
+    "description": "Integration summary card title"
+  },
+  "integrationSummaryUpdated": {
+    "message": "Last updated: $TIME$",
+    "description": "Timestamp for integration summary",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "2024-05-10 21:30"
+      }
+    }
+  },
+  "integrationSummaryCombined": {
+    "message": "Combined overview",
+    "description": "Combined summary label"
+  },
+  "integrationSummaryHighlights": {
+    "message": "Service highlights",
+    "description": "Highlights section label"
+  },
+  "integrationSummaryEmpty": {
+    "message": "No integrated responses yet. Ask a question with integrated summary enabled.",
+    "description": "Empty integration summary message"
+  },
+  "launchMode": {
+    "message": "Launch Mode",
+    "description": "Launch mode section title"
+  },
+  "launchModeDesc": {
+    "message": "Choose how AI services open when you submit a query",
+    "description": "Launch mode section description"
+  },
+  "tabGroupMode": {
+    "message": "Tab Groups",
+    "description": "Tab group mode option"
+  },
+  "tabGroupModeDesc": {
+    "message": "Opens all AI services in a single browser window, organized in a color-coded tab group",
+    "description": "Tab group mode description"
+  },
+  "windowsMode": {
+    "message": "Tiled Windows",
+    "description": "Tiled windows mode option"
+  },
+  "windowsModeDesc": {
+    "message": "Opens each AI service in a separate window, automatically arranged in a grid layout",
+    "description": "Tiled windows mode description"
+  },
+  "tabsMode": {
+    "message": "Individual Tabs",
+    "description": "Individual tabs mode option"
+  },
+  "tabsModeDesc": {
+    "message": "Opens each AI service in a separate tab without grouping (classic mode)",
+    "description": "Individual tabs mode description"
+  },
+  "dropImagesTitle": {
+    "message": "Drop images here",
+    "description": "Drag-and-drop overlay title"
+  },
+  "dropImagesHint": {
+    "message": "Attach them to every selected AI assistant",
+    "description": "Drag-and-drop overlay hint"
+  },
+  "attachImages": {
+    "message": "Image",
+    "description": "Attach images button label"
+  },
+  "attachImagesTooltip": {
+    "message": "Attach images — paste or drag & drop also works",
+    "description": "Attach images button tooltip"
+  },
+  "attachedImages": {
+    "message": "Attached ($COUNT$)",
+    "description": "Header above attached image thumbnails",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "clearImages": {
+    "message": "Clear",
+    "description": "Remove all attached images"
+  },
+  "removeImage": {
+    "message": "Remove $NAME$",
+    "description": "Remove a single attached image",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "screenshot.png"
+      }
+    }
+  },
+  "submitWithImages": {
+    "message": "Submit with $COUNT$ image(s)",
+    "description": "Submit button label when images are attached",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "imagesOnlyPrompt": {
+    "message": "Please look at the attached image(s).",
+    "description": "Prompt sent when the user attaches images without typing"
+  },
+  "imageTooLarge": {
+    "message": "$NAME$ is too large (max $LIMIT$ MB)",
+    "description": "Error when a single image exceeds the size limit",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "screenshot.png"
+      },
+      "limit": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "imageCacheFull": {
+    "message": "Images are attached but too large to keep for next time",
+    "description": "Warning when attachments exceed the storage quota"
+  },
+  "imageReadFailed": {
+    "message": "Some images could not be read and were skipped",
+    "description": "Warning when one or more images failed to load"
+  },
+  "clipToMarkdown": {
+    "message": "Save to Markdown (.md)",
+    "description": "Button to clip active tab content to Markdown file"
+  },
+  "clipping": {
+    "message": "Saving...",
+    "description": "Status when clipping is in progress"
+  },
+  "clippedSuccess": {
+    "message": "Saved to Markdown!",
+    "description": "Status when markdown file is successfully saved"
+  },
+  "clipError": {
+    "message": "Failed to clip page",
+    "description": "Status when clipping fails"
+  }
+}

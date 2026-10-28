@@ -1,10 +1,20 @@
-name: CI
+name: Agent Skill CI
 
 on:
   push:
     branches: [main]
+    paths:
+      - "apps/agent-skill/**"
+      - ".github/workflows/agent-skill-*.yml"
   pull_request:
     branches: [main]
+    paths:
+      - "apps/agent-skill/**"
+      - ".github/workflows/agent-skill-*.yml"
+
+defaults:
+  run:
+    working-directory: apps/agent-skill
 
 jobs:
   ci:

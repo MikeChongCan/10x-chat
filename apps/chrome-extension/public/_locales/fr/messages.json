@@ -1,0 +1,362 @@
+{
+  "extensionName": {
+    "message": "10xWise Multi-AI Chat",
+    "description": "Extension name"
+  },
+  "extensionDescription": {
+    "message": "10xWise Multi-AI Chat vous permet de discuter avec plusieurs modèles d'IA sur le web instantanément avec une seule extension.",
+    "description": "Extension description"
+  },
+  "appTitle": {
+    "message": "10x Chat",
+    "description": "Application title"
+  },
+  "appSubtitle": {
+    "message": "Posez des questions à plusieurs assistants IA en même temps",
+    "description": "Application subtitle"
+  },
+  "servicesActive": {
+    "message": "$COUNT$ services actifs",
+    "description": "Number of active services",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "servicesSelected": {
+    "message": "Interroger seulement $COUNT$",
+    "description": "Number of services selected for this question",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "serviceChipHint": {
+    "message": "Cliquez sur un service pour n'interroger que lui",
+    "description": "Hint under the service chips"
+  },
+  "serviceChipClear": {
+    "message": "Interroger tous les services actifs",
+    "description": "Clear the service chip selection"
+  },
+  "settings": {
+    "message": "Paramètres",
+    "description": "Settings button text"
+  },
+  "yourQuestions": {
+    "message": "Vos Questions",
+    "description": "Input label"
+  },
+  "askAnything": {
+    "message": "Demandez n'importe quoi...",
+    "description": "Input placeholder"
+  },
+  "submitShortcut": {
+    "message": "Demandez n'importe quoi... ($SHORTCUT$ pour soumettre)",
+    "description": "Input placeholder with shortcut",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Cmd+Enter"
+      }
+    }
+  },
+  "submit": {
+    "message": "Soumettre",
+    "description": "Submit button text"
+  },
+  "launching": {
+    "message": "Lancement...",
+    "description": "Loading state text"
+  },
+  "noServicesEnabled": {
+    "message": "Aucun service activé.",
+    "description": "No services warning"
+  },
+  "enableServices": {
+    "message": "Activer les services",
+    "description": "Enable services link text"
+  },
+  "serviceNameChatGPT": {
+    "message": "ChatGPT",
+    "description": "ChatGPT service name"
+  },
+  "serviceNameGrok": {
+    "message": "Grok",
+    "description": "Grok service name"
+  },
+  "serviceNameGemini": {
+    "message": "Gemini",
+    "description": "Gemini service name"
+  },
+  "serviceNamePerplexity": {
+    "message": "Perplexity",
+    "description": "Perplexity service name"
+  },
+  "serviceNameClaude": {
+    "message": "Claude",
+    "description": "Claude service name"
+  },
+  "optionsTitle": {
+    "message": "Paramètres de 10x Chat",
+    "description": "Options page title"
+  },
+  "optionsSubtitle": {
+    "message": "Configurez les services d'IA à interroger simultanément",
+    "description": "Options page subtitle"
+  },
+  "activeServices": {
+    "message": "Services Actifs",
+    "description": "Active services header"
+  },
+  "activeServicesDesc": {
+    "message": "Services actuellement activés pour les requêtes",
+    "description": "Active services description"
+  },
+  "enabled": {
+    "message": "activés",
+    "description": "Enabled count text"
+  },
+  "serviceEnabled": {
+    "message": "Activé",
+    "description": "Service enabled status"
+  },
+  "serviceDisabled": {
+    "message": "Désactivé",
+    "description": "Service disabled status"
+  },
+  "saveSettings": {
+    "message": "Enregistrer les Paramètres",
+    "description": "Save button text"
+  },
+  "saving": {
+    "message": "Enregistrement...",
+    "description": "Saving state text"
+  },
+  "settingsSaved": {
+    "message": "Paramètres enregistrés avec succès !",
+    "description": "Success message"
+  },
+  "errorSaving": {
+    "message": "Erreur lors de l'enregistrement des paramètres",
+    "description": "Error message"
+  },
+  "changesEffectNext": {
+    "message": "Les modifications prendront effet la prochaine fois que vous utiliserez l'extension",
+    "description": "Changes effect notice"
+  },
+  "serviceDescChatGPT": {
+    "message": "Assistant IA conversationnel d'OpenAI",
+    "description": "ChatGPT service description"
+  },
+  "serviceDescGrok": {
+    "message": "Assistant IA de X avec informations en temps réel",
+    "description": "Grok service description"
+  },
+  "serviceDescGemini": {
+    "message": "Modèle d'IA avancé de Google",
+    "description": "Gemini service description"
+  },
+  "serviceDescPerplexity": {
+    "message": "Assistant de recherche et de recherche alimenté par l'IA",
+    "description": "Perplexity service description"
+  },
+  "serviceDescClaude": {
+    "message": "IA utile, inoffensive et honnête d'Anthropic",
+    "description": "Claude service description"
+  },
+  "serviceNameGoogleGemini": {
+    "message": "Google Gemini",
+    "description": "Google Gemini full service name"
+  },
+  "serviceNamePerplexityAI": {
+    "message": "Perplexity AI",
+    "description": "Perplexity AI full service name"
+  },
+  "clearQuery": {
+    "message": "Effacer",
+    "description": "Clear query button tooltip"
+  },
+  "closePreviousTabs": {
+    "message": "Fermer les onglets précédents",
+    "description": "Close previous tabs checkbox label"
+  },
+  "enableTabGroups": {
+    "message": "Activer les groupes d'onglets",
+    "description": "Enable tab groups toggle title"
+  },
+  "enableTabGroupsDesc": {
+    "message": "Regrouper automatiquement les onglets des services IA pour une meilleure organisation",
+    "description": "Enable tab groups toggle description"
+  },
+  "continuousModeLabel": {
+    "message": "Mode conversation continue",
+    "description": "Libellé du mode continu"
+  },
+  "continuousModeDescription": {
+    "message": "Réutilisez les onglets existants pour garder le contexte dans le même fil.",
+    "description": "Description du mode continu"
+  },
+  "integrationModeLabel": {
+    "message": "Résumé intégré",
+    "description": "Libellé du mode intégré"
+  },
+  "integrationModeDescription": {
+    "message": "Récupère les réponses de toutes les IA activées et génère une synthèse globale.",
+    "description": "Description du mode intégré"
+  },
+  "integrationSummaryTitle": {
+    "message": "Dernier résumé intégré",
+    "description": "Titre du résumé intégré"
+  },
+  "integrationSummaryUpdated": {
+    "message": "Dernière mise à jour : $TIME$",
+    "description": "Horodatage du résumé intégré",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "2024-05-10 21:30"
+      }
+    }
+  },
+  "integrationSummaryCombined": {
+    "message": "Vue d'ensemble combinée",
+    "description": "Libellé du résumé combiné"
+  },
+  "integrationSummaryHighlights": {
+    "message": "Points clés par service",
+    "description": "Libellé des points clés"
+  },
+  "integrationSummaryEmpty": {
+    "message": "Aucune réponse intégrée pour le moment. Posez une question avec le résumé intégré activé.",
+    "description": "Message lorsque le résumé intégré est vide"
+  },
+  "launchMode": {
+    "message": "Mode de lancement",
+    "description": "Launch mode section title"
+  },
+  "launchModeDesc": {
+    "message": "Choisissez comment les services IA s'ouvrent lorsque vous soumettez une requête",
+    "description": "Launch mode section description"
+  },
+  "tabGroupMode": {
+    "message": "Groupes d'onglets",
+    "description": "Tab group mode option"
+  },
+  "tabGroupModeDesc": {
+    "message": "Ouvre tous les services IA dans une seule fenêtre du navigateur, organisés dans un groupe d'onglets avec code couleur",
+    "description": "Tab group mode description"
+  },
+  "windowsMode": {
+    "message": "Fenêtres en mosaïque",
+    "description": "Tiled windows mode option"
+  },
+  "windowsModeDesc": {
+    "message": "Ouvre chaque service IA dans une fenêtre séparée, automatiquement disposées en grille",
+    "description": "Tiled windows mode description"
+  },
+  "tabsMode": {
+    "message": "Onglets individuels",
+    "description": "Individual tabs mode option"
+  },
+  "tabsModeDesc": {
+    "message": "Ouvre chaque service IA dans un onglet séparé sans regroupement (mode classique)",
+    "description": "Individual tabs mode description"
+  },
+  "dropImagesTitle": {
+    "message": "Déposez les images ici",
+    "description": "Drag-and-drop overlay title"
+  },
+  "dropImagesHint": {
+    "message": "Elles seront jointes à chaque assistant IA sélectionné",
+    "description": "Drag-and-drop overlay hint"
+  },
+  "attachImages": {
+    "message": "Image",
+    "description": "Attach images button label"
+  },
+  "attachImagesTooltip": {
+    "message": "Joindre des images — le collage et le glisser-déposer fonctionnent aussi",
+    "description": "Attach images button tooltip"
+  },
+  "attachedImages": {
+    "message": "Jointes ($COUNT$)",
+    "description": "Header above attached image thumbnails",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "clearImages": {
+    "message": "Vider",
+    "description": "Remove all attached images"
+  },
+  "removeImage": {
+    "message": "Retirer $NAME$",
+    "description": "Remove a single attached image",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "screenshot.png"
+      }
+    }
+  },
+  "submitWithImages": {
+    "message": "Envoyer avec $COUNT$ image(s)",
+    "description": "Submit button label when images are attached",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "imagesOnlyPrompt": {
+    "message": "Merci de regarder les images jointes.",
+    "description": "Prompt sent when the user attaches images without typing"
+  },
+  "imageTooLarge": {
+    "message": "$NAME$ est trop volumineuse (max $LIMIT$ Mo)",
+    "description": "Error when a single image exceeds the size limit",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "screenshot.png"
+      },
+      "limit": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "imageCacheFull": {
+    "message": "Les images sont jointes mais trop volumineuses pour être conservées pour la prochaine fois",
+    "description": "Warning when attachments exceed the storage quota"
+  },
+  "imageReadFailed": {
+    "message": "Certaines images n'ont pas pu être lues et ont été ignorées",
+    "description": "Warning when one or more images failed to load"
+  },
+  "clipToMarkdown": {
+    "message": "Enregistrer en Markdown (.md)",
+    "description": "Button to clip active tab content to Markdown file"
+  },
+  "clipping": {
+    "message": "Enregistrement...",
+    "description": "Status when clipping is in progress"
+  },
+  "clippedSuccess": {
+    "message": "Enregistré en Markdown !",
+    "description": "Status when markdown file is successfully saved"
+  },
+  "clipError": {
+    "message": "Échec de la capture de la page",
+    "description": "Status when clipping fails"
+  }
+}

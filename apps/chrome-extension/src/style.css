@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 99%;
+    --foreground: 220 14% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 14% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 14% 10%;
+    --primary: 220 14% 10%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 10% 95%;
+    --secondary-foreground: 220 14% 20%;
+    --muted: 220 10% 95%;
+    --muted-foreground: 220 8% 40%;
+    --accent: 220 10% 93%;
+    --accent-foreground: 220 14% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 10% 90%;
+    --input: 220 10% 90%;
+    --ring: 220 14% 10%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family:
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .transition-gpu {
+    transition-property: color, background-color, border-color, box-shadow,
+      opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+}

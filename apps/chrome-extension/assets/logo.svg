@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background: Apple Space Black / Deep Obsidian Titanium -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#20222A"/>
+      <stop offset="50%" stop-color="#121318"/>
+      <stop offset="100%" stop-color="#08090C"/>
+    </linearGradient>
+
+    <!-- Squircle Iridescent Rim Highlight -->
+    <linearGradient id="squircle-rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.65"/>
+      <stop offset="35%" stop-color="#A855F7" stop-opacity="0.45"/>
+      <stop offset="70%" stop-color="#EC4899" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.1"/>
+    </linearGradient>
+
+    <!-- Apple Intelligence Signature Flow Gradient -->
+    <linearGradient id="apple-ai" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F5FF"/>
+      <stop offset="28%" stop-color="#0080FF"/>
+      <stop offset="65%" stop-color="#7928CA"/>
+      <stop offset="100%" stop-color="#FF0080"/>
+    </linearGradient>
+
+    <!-- Specular Top Rim on Chat Bubble (Glassmorphism) -->
+    <linearGradient id="bubble-specular" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Soft Ambient Glow & Shadow -->
+    <filter id="ai-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#7928CA" flood-opacity="0.42"/>
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+
+    <filter id="star-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Apple Squircle Container (macOS / iOS standard continuous curvature) -->
+  <rect width="512" height="512" rx="115" ry="115" fill="url(#bg)"/>
+  <rect width="508" height="508" x="2" y="2" rx="113" ry="113" fill="none" stroke="url(#squircle-rim)" stroke-width="2.5"/>
+
+  <!-- Subtle Ambient Core Glow behind bubble -->
+  <circle cx="256" cy="246" r="140" fill="url(#apple-ai)" opacity="0.25" filter="blur(32px)"/>
+
+  <!-- Main Apple-Style Chat Bubble -->
+  <g filter="url(#ai-shadow)">
+    <!-- Smooth Apple Speech Bubble Path -->
+    <path d="M 175 140
+             C 215 140, 297 140, 337 140
+             C 382 140, 408 166, 408 211
+             L 408 269
+             C 408 314, 382 340, 337 340
+             L 235 340
+             C 218 340, 195 346, 172 364
+             C 152 380, 142 390, 140 388
+             C 137 386, 138 368, 141 346
+             C 142 342, 140 339, 137 337
+             C 114 319, 104 298, 104 269
+             L 104 211
+             C 104 166, 130 140, 175 140 Z"
+          fill="url(#apple-ai)"/>
+
+    <!-- Subtle Inner Top Highlight for Glassmorphism Depth -->
+    <path d="M 175 142
+             C 215 142, 297 142, 337 142
+             C 380 142, 406 167, 406 211
+             L 406 230
+             C 370 195, 270 180, 106 230
+             L 106 211
+             C 106 167, 132 142, 175 142 Z"
+          fill="url(#bubble-specular)"/>
+
+    <!-- Primary Radiant 4-Point Apple Intelligence Star -->
+    <path d="M 256 182
+             C 256 220, 230 240, 198 240
+             C 230 240, 256 260, 256 298
+             C 256 260, 282 240, 314 240
+             C 282 240, 256 220, 256 182 Z"
+          fill="#FFFFFF"
+          filter="url(#star-glow)"/>
+
+    <!-- Secondary Companion Sparkle (Top-Right) -->
+    <path d="M 334 186
+             C 334 200, 324 207, 313 207
+             C 324 207, 334 214, 334 228
+             C 334 214, 344 207, 355 207
+             C 344 207, 334 200, 334 186 Z"
+          fill="#FFFFFF"
+          opacity="0.9"
+          filter="url(#star-glow)"/>
+
+    <!-- Tertiary Micro Sparkle (Bottom-Left) -->
+    <path d="M 184 274
+             C 184 282, 178 286, 172 286
+             C 178 286, 184 290, 184 298
+             C 184 290, 190 286, 196 286
+             C 190 286, 184 282, 184 274 Z"
+          fill="#FFFFFF"
+          opacity="0.8"
+          filter="url(#star-glow)"/>
+  </g>
+</svg>
