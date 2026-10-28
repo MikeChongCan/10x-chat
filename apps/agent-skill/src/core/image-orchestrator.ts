@@ -214,6 +214,9 @@ const IMAGE_GEN_CONFIGS: Partial<Record<ProviderName, ImageGenProviderConfig>> =
   grok: grokImageGen,
 };
 
+/** Providers that support image generation. */
+export const IMAGE_PROVIDERS = Object.keys(IMAGE_GEN_CONFIGS) as ProviderName[];
+
 function getImageKey(image: GeneratedImage): string {
   const url = image.url ?? '';
   const idMatch = url.match(/[?&]id=([^&]+)/);

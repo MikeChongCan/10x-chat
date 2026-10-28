@@ -64,13 +64,15 @@
     "access": "public"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "chalk": "^5.4.1",
     "clipboardy": "^4.0.0",
     "commander": "^14.0.0",
     "fast-glob": "^3.3.3",
     "json5": "^2.2.3",
     "patchright": "^1.59.4",
-    "playwright": "^1.58.2"
+    "playwright": "^1.58.2",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
