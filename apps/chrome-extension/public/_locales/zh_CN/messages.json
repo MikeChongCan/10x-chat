@@ -1,0 +1,362 @@
+{
+  "extensionName": {
+    "message": "10xWise 多AI对话",
+    "description": "Extension name"
+  },
+  "extensionDescription": {
+    "message": "10xWise 多AI对话让您通过一个扩展程序即可在网页上立即与多个AI模型对话。",
+    "description": "Extension description"
+  },
+  "appTitle": {
+    "message": "10x 对话",
+    "description": "Application title"
+  },
+  "appSubtitle": {
+    "message": "同时询问多个AI助手",
+    "description": "Application subtitle"
+  },
+  "servicesActive": {
+    "message": "$COUNT$ 个服务已激活",
+    "description": "Number of active services",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "servicesSelected": {
+    "message": "仅询问 $COUNT$ 个",
+    "description": "Number of services selected for this question",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "serviceChipHint": {
+    "message": "点击服务，只询问它",
+    "description": "Hint under the service chips"
+  },
+  "serviceChipClear": {
+    "message": "询问所有已启用的服务",
+    "description": "Clear the service chip selection"
+  },
+  "settings": {
+    "message": "设置",
+    "description": "Settings button text"
+  },
+  "yourQuestions": {
+    "message": "您的问题",
+    "description": "Input label"
+  },
+  "askAnything": {
+    "message": "随便问点什么...",
+    "description": "Input placeholder"
+  },
+  "submitShortcut": {
+    "message": "随便问点什么...（$SHORTCUT$ 提交）",
+    "description": "Input placeholder with shortcut",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Cmd+Enter"
+      }
+    }
+  },
+  "submit": {
+    "message": "提交",
+    "description": "Submit button text"
+  },
+  "launching": {
+    "message": "启动中...",
+    "description": "Loading state text"
+  },
+  "noServicesEnabled": {
+    "message": "没有启用的服务。",
+    "description": "No services warning"
+  },
+  "enableServices": {
+    "message": "启用服务",
+    "description": "Enable services link text"
+  },
+  "serviceNameChatGPT": {
+    "message": "ChatGPT",
+    "description": "ChatGPT service name"
+  },
+  "serviceNameGrok": {
+    "message": "Grok",
+    "description": "Grok service name"
+  },
+  "serviceNameGemini": {
+    "message": "Gemini",
+    "description": "Gemini service name"
+  },
+  "serviceNamePerplexity": {
+    "message": "Perplexity",
+    "description": "Perplexity service name"
+  },
+  "serviceNameClaude": {
+    "message": "Claude",
+    "description": "Claude service name"
+  },
+  "optionsTitle": {
+    "message": "10x 对话设置",
+    "description": "Options page title"
+  },
+  "optionsSubtitle": {
+    "message": "配置要同时查询的AI服务",
+    "description": "Options page subtitle"
+  },
+  "activeServices": {
+    "message": "激活的服务",
+    "description": "Active services header"
+  },
+  "activeServicesDesc": {
+    "message": "当前已启用查询的服务",
+    "description": "Active services description"
+  },
+  "enabled": {
+    "message": "已启用",
+    "description": "Enabled count text"
+  },
+  "serviceEnabled": {
+    "message": "已启用",
+    "description": "Service enabled status"
+  },
+  "serviceDisabled": {
+    "message": "已禁用",
+    "description": "Service disabled status"
+  },
+  "saveSettings": {
+    "message": "保存设置",
+    "description": "Save button text"
+  },
+  "saving": {
+    "message": "保存中...",
+    "description": "Saving state text"
+  },
+  "settingsSaved": {
+    "message": "设置保存成功！",
+    "description": "Success message"
+  },
+  "errorSaving": {
+    "message": "保存设置时出错",
+    "description": "Error message"
+  },
+  "changesEffectNext": {
+    "message": "更改将在您下次使用扩展程序时生效",
+    "description": "Changes effect notice"
+  },
+  "serviceDescChatGPT": {
+    "message": "OpenAI的对话式AI助手",
+    "description": "ChatGPT service description"
+  },
+  "serviceDescGrok": {
+    "message": "X的实时信息AI助手",
+    "description": "Grok service description"
+  },
+  "serviceDescGemini": {
+    "message": "谷歌的高级AI模型",
+    "description": "Gemini service description"
+  },
+  "serviceDescPerplexity": {
+    "message": "AI驱动的搜索和研究助手",
+    "description": "Perplexity service description"
+  },
+  "serviceDescClaude": {
+    "message": "Anthropic的有用、无害、诚实的AI",
+    "description": "Claude service description"
+  },
+  "serviceNameGoogleGemini": {
+    "message": "谷歌 Gemini",
+    "description": "Google Gemini full service name"
+  },
+  "serviceNamePerplexityAI": {
+    "message": "Perplexity AI",
+    "description": "Perplexity AI full service name"
+  },
+  "clearQuery": {
+    "message": "清除",
+    "description": "Clear query button tooltip"
+  },
+  "closePreviousTabs": {
+    "message": "关闭之前的标签页",
+    "description": "Close previous tabs checkbox label"
+  },
+  "enableTabGroups": {
+    "message": "启用标签组",
+    "description": "Enable tab groups toggle title"
+  },
+  "enableTabGroupsDesc": {
+    "message": "自动将AI服务标签页分组以便更好地组织管理",
+    "description": "Enable tab groups toggle description"
+  },
+  "continuousModeLabel": {
+    "message": "连续对话模式",
+    "description": "连续对话标签"
+  },
+  "continuousModeDescription": {
+    "message": "复用现有对话标签，在同一主题中保持上下文。",
+    "description": "连续对话说明"
+  },
+  "integrationModeLabel": {
+    "message": "多模型整合摘要",
+    "description": "整合模式标签"
+  },
+  "integrationModeDescription": {
+    "message": "收集所有启用模型的回答并生成综合总结。",
+    "description": "整合模式说明"
+  },
+  "integrationSummaryTitle": {
+    "message": "最新整合摘要",
+    "description": "整合摘要标题"
+  },
+  "integrationSummaryUpdated": {
+    "message": "最近更新：$TIME$",
+    "description": "整合摘要时间",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "2024-05-10 21:30"
+      }
+    }
+  },
+  "integrationSummaryCombined": {
+    "message": "综合概览",
+    "description": "整合摘要概览"
+  },
+  "integrationSummaryHighlights": {
+    "message": "各模型重点",
+    "description": "整合摘要重点"
+  },
+  "integrationSummaryEmpty": {
+    "message": "暂无整合回应，请在启用多模型整合时发起提问。",
+    "description": "整合摘要为空提示"
+  },
+  "launchMode": {
+    "message": "启动模式",
+    "description": "Launch mode section title"
+  },
+  "launchModeDesc": {
+    "message": "选择提交查询时AI服务的打开方式",
+    "description": "Launch mode section description"
+  },
+  "tabGroupMode": {
+    "message": "标签组",
+    "description": "Tab group mode option"
+  },
+  "tabGroupModeDesc": {
+    "message": "在单个浏览器窗口中打开所有AI服务，以颜色编码的标签组进行组织",
+    "description": "Tab group mode description"
+  },
+  "windowsMode": {
+    "message": "平铺窗口",
+    "description": "Tiled windows mode option"
+  },
+  "windowsModeDesc": {
+    "message": "在单独的窗口中打开每个AI服务，自动以网格布局排列",
+    "description": "Tiled windows mode description"
+  },
+  "tabsMode": {
+    "message": "独立标签页",
+    "description": "Individual tabs mode option"
+  },
+  "tabsModeDesc": {
+    "message": "在单独的标签页中打开每个AI服务，不进行分组（经典模式）",
+    "description": "Individual tabs mode description"
+  },
+  "dropImagesTitle": {
+    "message": "将图片拖放到这里",
+    "description": "Drag-and-drop overlay title"
+  },
+  "dropImagesHint": {
+    "message": "图片会附加到所有已选择的 AI 助手",
+    "description": "Drag-and-drop overlay hint"
+  },
+  "attachImages": {
+    "message": "图片",
+    "description": "Attach images button label"
+  },
+  "attachImagesTooltip": {
+    "message": "添加图片 —— 也支持粘贴或拖拽",
+    "description": "Attach images button tooltip"
+  },
+  "attachedImages": {
+    "message": "已添加（$COUNT$）",
+    "description": "Header above attached image thumbnails",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "clearImages": {
+    "message": "清空",
+    "description": "Remove all attached images"
+  },
+  "removeImage": {
+    "message": "移除 $NAME$",
+    "description": "Remove a single attached image",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "screenshot.png"
+      }
+    }
+  },
+  "submitWithImages": {
+    "message": "发送并附带 $COUNT$ 张图片",
+    "description": "Submit button label when images are attached",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "imagesOnlyPrompt": {
+    "message": "请看一下附带的图片。",
+    "description": "Prompt sent when the user attaches images without typing"
+  },
+  "imageTooLarge": {
+    "message": "$NAME$ 太大了（上限 $LIMIT$ MB）",
+    "description": "Error when a single image exceeds the size limit",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "screenshot.png"
+      },
+      "limit": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "imageCacheFull": {
+    "message": "图片已附加，但体积过大，无法保留到下次打开",
+    "description": "Warning when attachments exceed the storage quota"
+  },
+  "imageReadFailed": {
+    "message": "部分图片无法读取，已跳过",
+    "description": "Warning when one or more images failed to load"
+  },
+  "clipToMarkdown": {
+    "message": "保存为 Markdown (.md)",
+    "description": "Button to clip active tab content to Markdown file"
+  },
+  "clipping": {
+    "message": "正在保存...",
+    "description": "Status when clipping is in progress"
+  },
+  "clippedSuccess": {
+    "message": "已成功保存为 Markdown！",
+    "description": "Status when markdown file is successfully saved"
+  },
+  "clipError": {
+    "message": "保存页面失败",
+    "description": "Status when clipping fails"
+  }
+}

@@ -1,0 +1,362 @@
+{
+  "extensionName": {
+    "message": "10xWise Multi-KI-Chat",
+    "description": "Extension name"
+  },
+  "extensionDescription": {
+    "message": "10xWise Multi-KI-Chat ermöglicht es Ihnen, sofort mit mehreren KI-Modellen im Web zu chatten - mit nur einer Erweiterung.",
+    "description": "Extension description"
+  },
+  "appTitle": {
+    "message": "10x Chat",
+    "description": "Application title"
+  },
+  "appSubtitle": {
+    "message": "Fragen Sie mehrere KI-Assistenten gleichzeitig",
+    "description": "Application subtitle"
+  },
+  "servicesActive": {
+    "message": "$COUNT$ Dienste aktiv",
+    "description": "Number of active services",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "servicesSelected": {
+    "message": "Nur $COUNT$ fragen",
+    "description": "Number of services selected for this question",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "serviceChipHint": {
+    "message": "Dienst anklicken, um nur ihn zu fragen",
+    "description": "Hint under the service chips"
+  },
+  "serviceChipClear": {
+    "message": "Alle aktiven Dienste fragen",
+    "description": "Clear the service chip selection"
+  },
+  "settings": {
+    "message": "Einstellungen",
+    "description": "Settings button text"
+  },
+  "yourQuestions": {
+    "message": "Ihre Fragen",
+    "description": "Input label"
+  },
+  "askAnything": {
+    "message": "Fragen Sie etwas...",
+    "description": "Input placeholder"
+  },
+  "submitShortcut": {
+    "message": "Fragen Sie etwas... ($SHORTCUT$ zum Senden)",
+    "description": "Input placeholder with shortcut",
+    "placeholders": {
+      "shortcut": {
+        "content": "$1",
+        "example": "Strg+Enter"
+      }
+    }
+  },
+  "submit": {
+    "message": "Senden",
+    "description": "Submit button text"
+  },
+  "launching": {
+    "message": "Wird gestartet...",
+    "description": "Loading state text"
+  },
+  "noServicesEnabled": {
+    "message": "Keine Dienste aktiviert.",
+    "description": "No services warning"
+  },
+  "enableServices": {
+    "message": "Dienste aktivieren",
+    "description": "Enable services link text"
+  },
+  "serviceNameChatGPT": {
+    "message": "ChatGPT",
+    "description": "ChatGPT service name"
+  },
+  "serviceNameGrok": {
+    "message": "Grok",
+    "description": "Grok service name"
+  },
+  "serviceNameGemini": {
+    "message": "Gemini",
+    "description": "Gemini service name"
+  },
+  "serviceNamePerplexity": {
+    "message": "Perplexity",
+    "description": "Perplexity service name"
+  },
+  "serviceNameClaude": {
+    "message": "Claude",
+    "description": "Claude service name"
+  },
+  "optionsTitle": {
+    "message": "10x Chat Einstellungen",
+    "description": "Options page title"
+  },
+  "optionsSubtitle": {
+    "message": "Konfigurieren Sie, welche KI-Dienste gleichzeitig abgefragt werden sollen",
+    "description": "Options page subtitle"
+  },
+  "activeServices": {
+    "message": "Aktive Dienste",
+    "description": "Active services header"
+  },
+  "activeServicesDesc": {
+    "message": "Derzeit für Abfragen aktivierte Dienste",
+    "description": "Active services description"
+  },
+  "enabled": {
+    "message": "aktiviert",
+    "description": "Enabled count text"
+  },
+  "serviceEnabled": {
+    "message": "Aktiviert",
+    "description": "Service enabled status"
+  },
+  "serviceDisabled": {
+    "message": "Deaktiviert",
+    "description": "Service disabled status"
+  },
+  "saveSettings": {
+    "message": "Einstellungen speichern",
+    "description": "Save button text"
+  },
+  "saving": {
+    "message": "Wird gespeichert...",
+    "description": "Saving state text"
+  },
+  "settingsSaved": {
+    "message": "Einstellungen erfolgreich gespeichert!",
+    "description": "Success message"
+  },
+  "errorSaving": {
+    "message": "Fehler beim Speichern der Einstellungen",
+    "description": "Error message"
+  },
+  "changesEffectNext": {
+    "message": "Änderungen werden beim nächsten Verwenden der Erweiterung wirksam",
+    "description": "Changes effect notice"
+  },
+  "serviceDescChatGPT": {
+    "message": "OpenAIs konversationeller KI-Assistent",
+    "description": "ChatGPT service description"
+  },
+  "serviceDescGrok": {
+    "message": "Xs KI-Assistent mit Echtzeitinformationen",
+    "description": "Grok service description"
+  },
+  "serviceDescGemini": {
+    "message": "Googles fortschrittliches KI-Modell",
+    "description": "Gemini service description"
+  },
+  "serviceDescPerplexity": {
+    "message": "KI-gestützter Such- und Forschungsassistent",
+    "description": "Perplexity service description"
+  },
+  "serviceDescClaude": {
+    "message": "Anthropics hilfreiche, harmlose und ehrliche KI",
+    "description": "Claude service description"
+  },
+  "serviceNameGoogleGemini": {
+    "message": "Google Gemini",
+    "description": "Google Gemini full service name"
+  },
+  "serviceNamePerplexityAI": {
+    "message": "Perplexity AI",
+    "description": "Perplexity AI full service name"
+  },
+  "clearQuery": {
+    "message": "Löschen",
+    "description": "Clear query button tooltip"
+  },
+  "closePreviousTabs": {
+    "message": "Vorherige Tabs schließen",
+    "description": "Close previous tabs checkbox label"
+  },
+  "enableTabGroups": {
+    "message": "Tab-Gruppen aktivieren",
+    "description": "Enable tab groups toggle title"
+  },
+  "enableTabGroupsDesc": {
+    "message": "KI-Service-Tabs automatisch für bessere Organisation gruppieren",
+    "description": "Enable tab groups toggle description"
+  },
+  "continuousModeLabel": {
+    "message": "Modus für fortlaufende Gespräche",
+    "description": "Bezeichnung für den kontinuierlichen Modus"
+  },
+  "continuousModeDescription": {
+    "message": "Vorhandene Chats wiederverwenden, um den Kontext im selben Thread zu behalten.",
+    "description": "Beschreibung des kontinuierlichen Modus"
+  },
+  "integrationModeLabel": {
+    "message": "Integrierte Zusammenfassung",
+    "description": "Bezeichnung für den Integrationsmodus"
+  },
+  "integrationModeDescription": {
+    "message": "Antworten aller aktivierten KIs sammeln und zu einer Gesamtübersicht zusammenführen.",
+    "description": "Beschreibung des Integrationsmodus"
+  },
+  "integrationSummaryTitle": {
+    "message": "Aktuellste integrierte Zusammenfassung",
+    "description": "Titel der integrierten Zusammenfassung"
+  },
+  "integrationSummaryUpdated": {
+    "message": "Zuletzt aktualisiert: $TIME$",
+    "description": "Zeitstempel der integrierten Zusammenfassung",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "2024-05-10 21:30"
+      }
+    }
+  },
+  "integrationSummaryCombined": {
+    "message": "Kombinierter Überblick",
+    "description": "Bezeichnung für den kombinierten Überblick"
+  },
+  "integrationSummaryHighlights": {
+    "message": "Highlights je Dienst",
+    "description": "Bezeichnung für die Highlights"
+  },
+  "integrationSummaryEmpty": {
+    "message": "Noch keine integrierten Antworten. Stelle eine Anfrage mit aktivierter integrierter Zusammenfassung.",
+    "description": "Hinweis wenn keine integrierten Antworten vorliegen"
+  },
+  "launchMode": {
+    "message": "Startmodus",
+    "description": "Launch mode section title"
+  },
+  "launchModeDesc": {
+    "message": "Wählen Sie, wie KI-Services beim Senden einer Anfrage geöffnet werden",
+    "description": "Launch mode section description"
+  },
+  "tabGroupMode": {
+    "message": "Tab-Gruppen",
+    "description": "Tab group mode option"
+  },
+  "tabGroupModeDesc": {
+    "message": "Öffnet alle KI-Services in einem einzigen Browserfenster, organisiert in einer farbcodierten Tab-Gruppe",
+    "description": "Tab group mode description"
+  },
+  "windowsMode": {
+    "message": "Gekachelte Fenster",
+    "description": "Tiled windows mode option"
+  },
+  "windowsModeDesc": {
+    "message": "Öffnet jeden KI-Service in einem separaten Fenster, automatisch in einem Raster angeordnet",
+    "description": "Tiled windows mode description"
+  },
+  "tabsMode": {
+    "message": "Einzelne Tabs",
+    "description": "Individual tabs mode option"
+  },
+  "tabsModeDesc": {
+    "message": "Öffnet jeden KI-Service in einem separaten Tab ohne Gruppierung (klassischer Modus)",
+    "description": "Individual tabs mode description"
+  },
+  "dropImagesTitle": {
+    "message": "Bilder hier ablegen",
+    "description": "Drag-and-drop overlay title"
+  },
+  "dropImagesHint": {
+    "message": "Sie werden an jeden ausgewählten KI-Assistenten angehängt",
+    "description": "Drag-and-drop overlay hint"
+  },
+  "attachImages": {
+    "message": "Bild",
+    "description": "Attach images button label"
+  },
+  "attachImagesTooltip": {
+    "message": "Bilder anhängen – Einfügen oder Ziehen und Ablegen funktioniert auch",
+    "description": "Attach images button tooltip"
+  },
+  "attachedImages": {
+    "message": "Angehängt ($COUNT$)",
+    "description": "Header above attached image thumbnails",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "clearImages": {
+    "message": "Leeren",
+    "description": "Remove all attached images"
+  },
+  "removeImage": {
+    "message": "$NAME$ entfernen",
+    "description": "Remove a single attached image",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "screenshot.png"
+      }
+    }
+  },
+  "submitWithImages": {
+    "message": "Mit $COUNT$ Bild(ern) senden",
+    "description": "Submit button label when images are attached",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "imagesOnlyPrompt": {
+    "message": "Bitte sieh dir die angehängten Bilder an.",
+    "description": "Prompt sent when the user attaches images without typing"
+  },
+  "imageTooLarge": {
+    "message": "$NAME$ ist zu groß (max. $LIMIT$ MB)",
+    "description": "Error when a single image exceeds the size limit",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "screenshot.png"
+      },
+      "limit": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "imageCacheFull": {
+    "message": "Bilder sind angehängt, aber zu groß, um sie für das nächste Mal zu speichern",
+    "description": "Warning when attachments exceed the storage quota"
+  },
+  "imageReadFailed": {
+    "message": "Einige Bilder konnten nicht gelesen werden und wurden übersprungen",
+    "description": "Warning when one or more images failed to load"
+  },
+  "clipToMarkdown": {
+    "message": "Als Markdown speichern (.md)",
+    "description": "Button to clip active tab content to Markdown file"
+  },
+  "clipping": {
+    "message": "Speichern...",
+    "description": "Status when clipping is in progress"
+  },
+  "clippedSuccess": {
+    "message": "Als Markdown-Datei gespeichert!",
+    "description": "Status when markdown file is successfully saved"
+  },
+  "clipError": {
+    "message": "Fehler beim Speichern der Seite",
+    "description": "Status when clipping fails"
+  }
+}
