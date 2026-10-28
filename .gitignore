@@ -1,2 +1,4 @@
 .DS_Store
 node_modules/
+# Third-party repos cloned for study. Not part of this repo.
+.research/
