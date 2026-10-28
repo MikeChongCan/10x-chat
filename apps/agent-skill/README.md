@@ -313,6 +313,41 @@ npx 10x-chat@latest skill install
 
 This lets agents like Codex or Claude Code use 10x-chat to query other models for cross-validation, code review, or debugging help.
 
+## Use from an agent (MCP)
+
+`10x-chat mcp` starts a [Model Context Protocol](https://modelcontextprotocol.io) server on stdio. Agents can then use the web AIs as tools. It uses the same browser profile and daemon as the CLI, so log in first with `10x-chat login <provider>`.
+
+```bash
+claude mcp add 10x -- 10x-chat mcp
+```
+
+Other MCP clients:
+
+```json
+{
+  "mcpServers": {
+    "10x-chat": { "command": "10x-chat", "args": ["mcp"] }
+  }
+}
+```
+
+| Tool | Params | Notes |
+|------|--------|-------|
+| `providers_list` | — | Read-only. Name, display name, default model, models, supported tools |
+| `chat` | `prompt`, `provider?`, `model?`, `files?`, `attach?`, `timeout_seconds?` | One provider |
+| `chat_many` | `prompt`, `providers?` (default: all chat providers), `model?`, `files?`, `attach?`, `timeout_seconds?` | Parallel; one result or error per provider |
+| `research` | `prompt`, `provider?` (gemini, chatgpt, perplexity), `model?`, `timeout_seconds?` | Usually returns a job |
+| `image` | `prompt`, `provider?` (chatgpt, gemini, grok), `save_dir?`, `timeout_seconds?` | Returns local image paths |
+| `get_job` | `job_id`, `wait_seconds?` (max 30) | Read-only. Status `running` / `done` / `failed` / `cancelled` |
+| `cancel_job` | `job_id` | Marks the job cancelled and drops its result |
+| `session_get` | `session_id` | Read-only. Session metadata + response text |
+
+`files` and `attach` take local paths only (no globs), max 25 MB total.
+
+**Job model.** Each write tool starts a job and waits up to 20 s. If the job finishes, you get the result. If not, you get `{job_id, status: "running"}`; call `get_job` (with `wait_seconds`) until the status is not `running`. Jobs are in memory and end when the server stops. `cancel_job` does not stop the browser step that is running now; the result is dropped.
+
+**Errors** come back as tool errors with a JSON body `{code, message, retry}`. `retry` is `yes`, `no`, or `after_login`. Codes: `not_logged_in` (run `10x-chat login <provider>`), `unknown_provider`, `unsupported`, `invalid_input`, `timeout`, `provider_error`, `job_not_found`, `session_not_found`.
+
 ## Custom Providers
 
 The package API supports out-of-tree providers for custom web chat sites. Register a provider before calling `runChat()`:

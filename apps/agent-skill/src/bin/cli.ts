@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// Must stay the first import: in `mcp` mode it moves console output to stderr
+// before any other module runs, so stdout carries only JSON-RPC.
+import '../mcp/early-guard.js';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +15,7 @@ import { createDelegateCommand } from '../cli/delegate.js';
 import { createHistoryCommand } from '../cli/history.js';
 import { createImageCommand } from '../cli/image.js';
 import { createLoginCommand } from '../cli/login.js';
+import { createMcpCommand } from '../cli/mcp.js';
 import { createMigrateCommand } from '../cli/migrate.js';
 import { createNotebookLMCommand } from '../cli/notebooklm.js';
 import { createResearchCommand } from '../cli/research.js';
@@ -59,6 +63,7 @@ program.addCommand(createConfigCommand());
 program.addCommand(createSkillCommand());
 program.addCommand(createNotebookLMCommand());
 program.addCommand(createMigrateCommand());
+program.addCommand(createMcpCommand(pkg.version));
 
 program.parseAsync(process.argv).catch((error) => {
   console.error(chalk.red(error instanceof Error ? error.message : String(error)));

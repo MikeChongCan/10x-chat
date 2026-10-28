@@ -237,6 +237,41 @@ npx 10x-chat@latest skill install
 
 這讓 Codex 或 Claude Code 等助手可以使用 10x-chat 查詢其他模型，進行交叉驗證、程式碼審查或除錯協助。
 
+## 從代理使用（MCP）
+
+`10x-chat mcp` 在 stdio 上啟動 [Model Context Protocol](https://modelcontextprotocol.io) 伺服器，讓代理把網頁 AI 當作工具使用。它與 CLI 共用瀏覽器設定檔和 daemon，所以請先執行 `10x-chat login <provider>`。
+
+```bash
+claude mcp add 10x -- 10x-chat mcp
+```
+
+其他 MCP 用戶端：
+
+```json
+{
+  "mcpServers": {
+    "10x-chat": { "command": "10x-chat", "args": ["mcp"] }
+  }
+}
+```
+
+| 工具 | 參數 | 說明 |
+|------|------|------|
+| `providers_list` | — | 唯讀。名稱、顯示名稱、預設模型、模型、支援的工具 |
+| `chat` | `prompt`, `provider?`, `model?`, `files?`, `attach?`, `timeout_seconds?` | 單一提供者 |
+| `chat_many` | `prompt`, `providers?`（預設：所有聊天提供者）, `model?`, `files?`, `attach?`, `timeout_seconds?` | 平行執行；每個提供者各有結果或錯誤 |
+| `research` | `prompt`, `provider?`（gemini、chatgpt、perplexity）, `model?`, `timeout_seconds?` | 通常回傳 job |
+| `image` | `prompt`, `provider?`（chatgpt、gemini、grok）, `save_dir?`, `timeout_seconds?` | 回傳本機圖片路徑 |
+| `get_job` | `job_id`, `wait_seconds?`（最多 30） | 唯讀。狀態 `running` / `done` / `failed` / `cancelled` |
+| `cancel_job` | `job_id` | 將 job 標為取消並丟棄結果 |
+| `session_get` | `session_id` | 唯讀。工作階段中繼資料與回應文字 |
+
+`files` 與 `attach` 只接受本機路徑（不支援 glob），總大小上限 25 MB。
+
+**Job 模型。** 每個寫入工具會啟動一個 job 並最多等待 20 秒。完成就直接回傳結果；否則回傳 `{job_id, status: "running"}`，請呼叫 `get_job`（可帶 `wait_seconds`）直到狀態不是 `running`。Job 存在記憶體中，伺服器停止即消失。`cancel_job` 不會中斷正在執行的瀏覽器步驟，只會丟棄結果。
+
+**錯誤**以工具錯誤回傳，JSON 內容為 `{code, message, retry}`，`retry` 為 `yes`、`no` 或 `after_login`。代碼：`not_logged_in`（執行 `10x-chat login <provider>`）、`unknown_provider`、`unsupported`、`invalid_input`、`timeout`、`provider_error`、`job_not_found`、`session_not_found`。
+
 ## 支援的提供者
 
 | 提供者 | 狀態 | 模型 | 網址 |

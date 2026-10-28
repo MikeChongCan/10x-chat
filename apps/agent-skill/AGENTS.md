@@ -15,10 +15,11 @@
 | `src/browser/manager.ts` | Browser launch: shared (daemon), shared-persistent (login), isolated modes |
 | `src/browser/daemon.ts` | Long-running Chromium server for cross-invocation reuse |
 | `src/browser/state.ts` | `saveStorageState` / `loadStorageState` for cookie persistence |
-| `src/cli/` | Commander subcommands: chat, login, status, config, video, skill, migrate |
+| `src/cli/` | Commander subcommands: chat, login, status, config, video, skill, migrate, mcp |
 | `src/types.ts` | Core types: `ProviderName`, `ProviderConfig`, `ProviderActions`, `ChatOptions` |
 | `src/notebooklm/` | NotebookLM RPC API client (notebooks, sources, artifacts) |
 | `src/session/` | Session storage (metadata, bundles, responses) |
+| `src/mcp/` | MCP stdio server (`10x-chat mcp`): tools, in-memory job store, error mapping, stdout guard |
 | `tests/` | Vitest unit tests |
 
 ## Architecture
@@ -53,6 +54,7 @@ Provider actions implement:
 - **Shared profile mode** (default): All providers share `~/.10x-chat/profiles/default/storage-state.json`
 - **Browser daemon**: `chromium.launchServer` persisted to disk for cross-CLI reuse
 - **Tab ref-counting**: Multiple CLI invocations share one Chromium; last tab stops the daemon
+- **MCP stdout guard**: In `mcp` mode stdout carries only JSON-RPC. `src/mcp/early-guard.ts` is the first import in `src/bin/cli.ts` and sends `console.log/info/warn/debug` and `process.stdout.write` to stderr; only the MCP transport writes to the real stdout. Do not reorder that import.
 - **Force-click**: Some providers need `click({ force: true })` to bypass overlay interception
 - **Model selection**: Orchestrator calls `selectModel()` before `submitPrompt()` if the provider implements it. Model resolved from `--model` flag → `provider.config.defaultModel`. Gemini supports modes: Flash-Lite, Flash (default), Pro, Argon (matched by name; version numbers like "4 Argon" are ignored). Legacy aliases: Fast → Flash-Lite, Thinking → Flash. The mode menu renders in a `[popover]`, not `.cdk-overlay-container`
 

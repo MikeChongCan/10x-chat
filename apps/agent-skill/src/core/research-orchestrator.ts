@@ -258,6 +258,9 @@ const RESEARCH_CONFIGS: Partial<Record<ProviderName, ResearchProviderConfig>> = 
   perplexity: perplexityResearch,
 };
 
+/** Providers that support deep research. */
+export const RESEARCH_PROVIDERS = Object.keys(RESEARCH_CONFIGS) as ProviderName[];
+
 /**
  * Run a deep research session:
  * 1. Launch browser → navigate to provider
