@@ -205,6 +205,27 @@ kill $(cat ~/.10x-chat/browser-daemon.json | python3 -c "import sys,json; print(
 - **Grok**: UI changes frequently. Always use `@latest`. Use `--headed` for best reliability
 - **ChatGPT/Grok sessions expire quickly**: login again if you get "Not logged in" errors
 - **Some provider UIs are flaky under automation**: retry with `--headed` before assuming a hard failure
+- **Google session expires (Gemini, Flow, NotebookLM)**: all three share one Google login. If one says "Not logged in", run `login gemini` once. Check all with `login --status`
+
+## Debugging a provider UI
+
+When a selector stops working (for example, a model picker change), read the live page in your own
+Chrome with Chrome DevTools MCP through mcporter (`chrome-existing` = `chrome-devtools-mcp --autoConnect`):
+
+```bash
+# 1. Find the page id of the provider tab
+bunx mcporter call chrome-existing.list_pages
+
+# 2. Read the page (pass pageId on EVERY call)
+bunx mcporter call chrome-existing.take_snapshot --args '{"pageId":57}'
+bunx mcporter call chrome-existing.evaluate_script \
+  --args '{"pageId":57,"function":"() => document.title"}'
+```
+
+- Each `mcporter call` starts a new process, so `select_page` does not carry over. Always pass `pageId`.
+- Use `--args` JSON. The `key:value` form breaks on `=>` in a script.
+- Page ids change when tabs open or close. Run `list_pages` again before you use an id.
+- This reads your real Chrome, not the 10x-chat profile. Login state can be different.
 
 ## Safety
 
