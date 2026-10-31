@@ -213,19 +213,36 @@ When a selector stops working (for example, a model picker change), read the liv
 Chrome with Chrome DevTools MCP through mcporter (`chrome-existing` = `chrome-devtools-mcp --autoConnect`):
 
 ```bash
-# 1. Find the page id of the provider tab
-bunx mcporter call chrome-existing.list_pages
+# 0. Check that mcporter knows the server (one-time)
+bunx mcporter list chrome-existing
 
-# 2. Read the page (pass pageId on EVERY call)
-bunx mcporter call chrome-existing.take_snapshot --args '{"pageId":57}'
+# 1. Find the page id of the provider tab: filter by URL
+bunx mcporter call chrome-existing.list_pages | grep gemini.google.com
+
+# 2. Read the page. Pass pageId on EVERY call.
+bunx mcporter call chrome-existing.take_snapshot --args '{"pageId":263}' | grep -i "mode picker"
 bunx mcporter call chrome-existing.evaluate_script \
-  --args '{"pageId":57,"function":"() => document.title"}'
+  --args '{"pageId":263,"function":"() => ({ title: document.title, picker: document.querySelector(\"[aria-label*=picker]\")?.getAttribute(\"aria-label\") })"}'
+# → {"title":"... - Google Gemini","picker":"Open mode picker, currently Argon"}
 ```
 
-- Each `mcporter call` starts a new process, so `select_page` does not carry over. Always pass `pageId`.
-- Use `--args` JSON. The `key:value` form breaks on `=>` in a script.
+- One Chrome connection, no extra prompts: mcporter's daemon keeps `chrome-existing` running, so
+  every `mcporter call` reuses the same chrome-devtools-mcp process and Chrome asks to allow it
+  only once. Check with `bunx mcporter daemon status`. If Chrome asks on every call, put
+  `MCPORTER_KEEPALIVE=chrome-existing` before the command.
+- Page tools need `pageId` on every call. A call without it fails with
+  `pageId: Invalid input: expected number`.
+- `list_pages` and `take_snapshot` print a lot. Filter them with `grep`.
+- If more than one tab matches, pick the chat tab, not a login or OAuth tab with the same host.
+- Use `--args` JSON. The `key:value` form breaks on `=>` in a script. Inside the JSON, escape
+  quotes as `\"`, and keep selectors simple (no spaces).
+- `evaluate_script` can return an object; it comes back as JSON.
 - Page ids change when tabs open or close. Run `list_pages` again before you use an id.
 - This reads your real Chrome, not the 10x-chat profile. Login state can be different.
+- Read only. Do not click or type in your own tabs, and only run scripts that read the page.
+- If `chrome-existing` is missing, add it to `~/.mcporter/mcporter.json` as
+  `npx chrome-devtools-mcp@latest --autoConnect`, and allow remote debugging in Chrome
+  (`chrome://inspect/#remote-debugging`) when Chrome asks.
 
 ## Safety
 
