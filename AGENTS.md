@@ -4,7 +4,7 @@ Two independent apps. Each app has its own `package.json`, `bun.lock`, and `AGEN
 
 | Path | What | Read first |
 |------|------|------------|
-| `apps/agent-skill/` | CLI + agent skill (`10x-chat` on npm). TypeScript, Playwright, Vitest, Biome. | `apps/agent-skill/AGENTS.md` |
+| `apps/agent-skill/` | Agent skills (markdown + JS). No npm release. Vitest, happy-dom, Biome. | `apps/agent-skill/AGENTS.md` |
 | `apps/chrome-extension/` | Chrome extension (10xWise Multi-AI Chat). WXT, React, Tailwind, Jest. | `apps/chrome-extension/AGENTS.md` |
 
 ## Rules
@@ -17,7 +17,7 @@ Two independent apps. Each app has its own `package.json`, `bun.lock`, and `AGEN
 
 ```bash
 # apps/agent-skill
-npm run build && npx biome check --no-errors-on-unmatched src/ && npm test
+bun run typecheck && bun run lint && bun run test
 
 # apps/chrome-extension
 bun run compile && bun run test && bun run build
@@ -25,7 +25,7 @@ bun run compile && bun run test && bun run build
 
 ## Release
 
-Each app has its own tag prefix. See the Releases section in `README.md`.
+See the Releases section in `README.md`. Only the Chrome extension has a release tag.
 
-- Agent skill: `agent-skill-v<version>` → npm.
+- Agent skills: no release. The npm CLI `10x-chat@0.12.1` is frozen.
 - Chrome extension: `chrome-extension-v<version>` → GitHub Release + Chrome Web Store.

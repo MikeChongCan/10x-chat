@@ -35,3 +35,6 @@ jobs:
 
       - name: Test
         run: bun run test
+
+      - name: Check shell syntax
+        run: bash -n skills/10x-chat/bin/*.sh
