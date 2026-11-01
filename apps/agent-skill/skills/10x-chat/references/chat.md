@@ -31,7 +31,8 @@ Use absolute skill folders. Set `ROUTER` to the `10x-chat` folder.
    check. For Grok, confirm that the newest bubble is an assistant response.
    Do not mistake the prompt echo or the previous answer for completion.
 8. Run `MIN_COUNT=$((BASE + 1)) "$ROUTER/bin/wait.sh" "$PAGE" "$PROVIDER" 600`.
-   MIN_COUNT makes it skip the previous answer.
+   MIN_COUNT makes it skip the previous answer. For flow and dreamina, use
+   `MIN_COUNT=1`: their read.js already skips videos that existed before send.
    Exit 3 loads wait-user. Exit 4 loads login. Exit 124 reports timeout.
    Other nonzero exits are tool errors; inspect them before retrying.
 9. Return the answer with source links and media URLs. Preserve provider labels.

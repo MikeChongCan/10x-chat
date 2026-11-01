@@ -240,6 +240,16 @@ describe('provider regressions', () => {
     );
     expect(run('claude', 'read').text).toBe('Only this');
   });
+  it('keeps every Claude markdown block in one message', () => {
+    setup('claude');
+    win.document.body.insertAdjacentHTML(
+      'beforeend',
+      '<div data-testid="assistant-message"><div class="standard-markdown">Part one</div><button>Tool</button><div class="standard-markdown">Part two <a href="https://src.example/">src</a></div></div>',
+    );
+    const answer = run('claude', 'read');
+    expect(answer.text).toBe('Part one\n\nPart two src');
+    expect(answer.links).toEqual(['https://src.example/']);
+  });
   it('reads only the Grok response markdown', () => {
     setup('grok');
     win.document.body.insertAdjacentHTML(
@@ -374,7 +384,7 @@ if (args.includes('chrome-existing.new_page')) {
     const isState = request.function.includes('blockedText');
     if (isState) fs.writeFileSync(countFile, String(++count));
     const mode = process.env.MOCK_TRANSPORT;
-    const value = isState ? { loggedIn: mode !== 'login', blocked: mode === 'blocked' ? 'quota' : null, generating: mode === 'timeout' || (mode === 'reset' && count === 3), blockedText: null } : {count: 1, text: mode === 'empty' ? '' : 'Final answer', images: [], links: []};
+    const value = isState ? { loggedIn: mode !== 'login', blocked: mode === 'blocked' ? 'quota' : null, generating: mode === 'timeout' || (mode === 'reset' && count === 3), blockedText: null } : {count: 1, text: mode === 'empty' || mode === 'image' ? '' : 'Final answer', images: mode === 'image' ? ['https://img.example/a.png'] : [], links: []};
     process.stdout.write(JSON.stringify(value));
   }
 }
@@ -418,6 +428,11 @@ if (args.includes('chrome-existing.new_page')) {
     const result = shell('wait', ['27', resolve('skills/10x-chat-gemini'), '1'], String(mode));
     expect(result.status, result.stderr).toBe(code);
     if (code !== 124) expect(JSON.parse(result.stdout)).toHaveProperty('loggedIn');
+  });
+  it('finishes an image-only answer', () => {
+    const result = shell('wait', ['27', resolve('skills/10x-chat-gemini'), '10'], 'image');
+    expect(result.status, result.stderr).toBe(0);
+    expect(JSON.parse(result.stdout).images).toEqual(['https://img.example/a.png']);
   });
   it('waits past the previous answer with MIN_COUNT', () => {
     const gemini = resolve('skills/10x-chat-gemini');

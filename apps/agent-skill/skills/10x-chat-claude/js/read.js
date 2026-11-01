@@ -13,15 +13,20 @@
     ),
   ].filter(visible);
   const message = nodes.at(-1);
-  const last =
-    [...(message?.querySelectorAll('.standard-markdown, .progressive-markdown') ?? [])].at(-1) ??
-    message;
-  let text = (last?.innerText ?? last?.textContent ?? '').trim();
+  const blocks = [
+    ...(message?.querySelectorAll('.standard-markdown, .progressive-markdown') ?? []),
+  ].filter((el, _, all) => !all.some((other) => other !== el && other.contains(el)));
+  const parts = blocks.length ? blocks : message ? [message] : [];
+  let text = parts
+    .map((el) => (el.innerText ?? el.textContent ?? '').trim())
+    .filter(Boolean)
+    .join('\n\n');
   text = text.replace(/^(?:(?:Thinking[^\n]*|Thought for[^\n]*|Pondering[^\n]*)\n)+/i, '').trim();
   return {
     count: nodes.length,
     text,
-    images: [...(last?.querySelectorAll('img') ?? [])]
+    images: parts
+      .flatMap((el) => [...el.querySelectorAll('img')])
       .filter(
         (img) =>
           !(
@@ -33,6 +38,6 @@
       )
       .map((img) => img.currentSrc || img.src)
       .filter(Boolean),
-    links: [...(last?.querySelectorAll('a[href]') ?? [])].map((a) => a.href),
+    links: parts.flatMap((el) => [...el.querySelectorAll('a[href]')]).map((a) => a.href),
   };
 };

@@ -22,7 +22,8 @@ while ((SECONDS < deadline)); do
   if jq -e '.blocked != null' >/dev/null <<<"$state"; then printf '%s\n' "$state"; exit 3; fi
   if jq -e '.loggedIn == false' >/dev/null <<<"$state"; then printf '%s\n' "$state"; exit 4; fi
   answer=$(poll read) || exit $?
-  text=$(jq -r '.text' <<<"$answer")
+  # A result is its text plus media URLs, so image-only and video-only answers finish too.
+  text=$(jq -r '[.text // "", (.images // [])[], (.videos // [])[]] | map(select(. != "")) | join("\n")' <<<"$answer")
   if jq -e --argjson min "${MIN_COUNT:-0}" '(.count // 0) < $min' >/dev/null <<<"$answer"; then
     text=''
   fi
