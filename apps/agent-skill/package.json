@@ -1,85 +1,18 @@
 {
-  "name": "10x-chat",
-  "version": "0.12.1",
-  "description": "CLI to chat with web AI agents (ChatGPT, Gemini, Claude, Grok, Perplexity, NotebookLM) and generate video (Flow/Veo, Dreamina/Seedance) via browser automation",
+  "name": "10x-chat-skills",
+  "private": true,
+  "version": "1.0.0",
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "bin": {
-    "10x-chat": "dist/bin/cli.js"
-  },
-  "files": [
-    "dist",
-    "skills",
-    "README.md",
-    "README-zh.md",
-    "LICENSE"
-  ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "dev": "bun run src/bin/cli.ts",
-    "start": "bun run build && node dist/bin/cli.js",
-    "typecheck": "tsc --noEmit",
-    "lint": "biome check .",
-    "lint:fix": "biome check --fix .",
     "test": "vitest run",
-    "test:watch": "vitest watch",
-    "prepublishOnly": "bun run typecheck && bun run lint && bun run test && bun run build",
-    "postinstall": "npx patchright install chromium 2>/dev/null || npx playwright install chromium 2>/dev/null || true"
-  },
-  "engines": {
-    "node": ">=22"
-  },
-  "keywords": [
-    "ai",
-    "chatgpt",
-    "gemini",
-    "claude",
-    "grok",
-    "perplexity",
-    "notebooklm",
-    "video-generation",
-    "cli",
-    "browser-automation",
-    "playwright"
-  ],
-  "license": "MIT",
-  "author": "Mike Chong",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/MikeChongCan/10x-chat.git",
-    "directory": "apps/agent-skill"
-  },
-  "homepage": "https://github.com/MikeChongCan/10x-chat/tree/main/apps/agent-skill#readme",
-  "bugs": {
-    "url": "https://github.com/MikeChongCan/10x-chat/issues"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.32.2",
-    "chalk": "^5.4.1",
-    "clipboardy": "^4.0.0",
-    "commander": "^14.0.0",
-    "fast-glob": "^3.3.3",
-    "json5": "^2.2.3",
-    "patchright": "^1.59.4",
-    "playwright": "^1.58.2",
-    "zod": "^4.6.7"
+    "lint": "biome check .",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.0.0",
-    "@types/node": "^22.0.0",
-    "tsx": "^4.19.0",
+    "vitest": "^3.0.0",
+    "happy-dom": "^20.0.0",
     "typescript": "^5.8.0",
-    "vitest": "^3.0.0"
-  },
-  "packageManager": "bun@1.3.14"
+    "@types/node": "^22.0.0"
+  }
 }

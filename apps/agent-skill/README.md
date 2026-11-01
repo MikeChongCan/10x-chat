@@ -1,472 +1,84 @@
-# 10x-chat
+# 10x-chat skills
 
-> Chat with web AI agents (ChatGPT, Gemini, Claude, Grok, Perplexity, NotebookLM) from your terminal via browser automation.
+Agent skills for web AI chat, research, images, and video in your own Chrome.
+Use your existing logins. The old npm CLI `10x-chat@0.12.1` is frozen.
+This app has no CLI, daemon, Playwright, or npm release.
 
-**English** | [繁體中文](./README-zh.md)
+## Three layers
 
-10x-chat uses [Playwright](https://playwright.dev) to automate browser sessions with persisted login profiles. Login once, then send prompts — bundled with file context — from your CLI or AI coding agent.
+1. The coding agent runs `bunx mcporter call chrome-existing.<tool>`.
+2. Markdown skills route requests and give provider steps and recovery rules.
+3. Small browser JS functions find elements and return JSON. Shell helpers run
+   them, open tabs, and wait for stable results.
 
-## Use with OpenClaw
+## Install
 
-Paste this into your [OpenClaw](https://openclaw.ai) chat to install as a skill:
-
-```
-https://raw.githubusercontent.com/MikeChongCan/10x-chat/refs/heads/main/skills/10x-chat/SKILL.md
-```
-
-## Quick Start
-
-```bash
-npx playwright install chromium  # one-time browser setup
-
-# 1. Login to a provider (opens a browser window)
-npx 10x-chat@latest login chatgpt
-
-# 2. Send a prompt
-npx 10x-chat@latest chat -p "Explain this error" --provider chatgpt --file "src/**/*.ts"
-
-# 3. View session history
-npx 10x-chat@latest status
-```
-
-> [!TIP]
-> Use `bunx` (bun.sh) instead of `npx` for faster startup.
-
-## Commands
-
-### `login <provider>`
-
-Opens a headed browser for you to authenticate. The session persists across runs.
+From the repository root, link all skill folders. Provider skills use helpers
+in the sibling router folder. Keep all folders together.
 
 ```bash
-npx 10x-chat@latest login chatgpt       # Login to ChatGPT
-npx 10x-chat@latest login gemini         # Login to Gemini
-npx 10x-chat@latest login claude         # Login to Claude
-npx 10x-chat@latest login grok           # Login to Grok
-npx 10x-chat@latest login perplexity     # Login to Perplexity
-npx 10x-chat@latest login notebooklm     # Login to NotebookLM
-npx 10x-chat@latest login dreamina       # Login to Dreamina (CapCut) for video
-npx 10x-chat@latest login --status       # Check login status for all providers
+mkdir -p ~/.claude/skills
+for d in apps/agent-skill/skills/*/; do ln -s "$PWD/$d" ~/.claude/skills/; done
 ```
 
-> Google Flow (Veo) video uses your Google login — logging into Gemini covers it in shared-profile mode.
+Install Bun, jq, and GNU timeout. On macOS, `brew install coreutils jq` supplies
+`gtimeout`. Linux can use `timeout`. The helpers accept either command.
 
-### `chat`
-
-Send a prompt to an AI provider via browser automation.
-
-```bash
-npx 10x-chat@latest chat -p "Review this code for bugs" --provider chatgpt --file "src/**/*.ts"
-npx 10x-chat@latest chat -p "Debug this error" --file "logs/error.log"
-npx 10x-chat@latest chat -p "Explain this" --dry-run              # Preview bundle without sending
-npx 10x-chat@latest chat -p "Explain this" --copy                  # Copy bundle to clipboard
-npx 10x-chat@latest chat -p "Long task" --timeout 600000 --headed  # 10min timeout, visible browser
-```
-
-| Flag | Description |
-|------|-------------|
-| `-p, --prompt <text>` | **(required)** The prompt to send |
-| `--provider <name>` | Provider: `chatgpt`, `gemini`, `claude`, `grok`, `perplexity`, `notebooklm` (default: config) |
-| `--model <name>` | Model/mode to select in the provider UI (e.g. Gemini: `Flash-Lite`, `Flash`, `Pro`, `Argon`, `Deep Think`) |
-| `-f, --file <paths...>` | Files/globs to bundle as context |
-| `--copy` | Copy bundle to clipboard instead of sending |
-| `--dry-run` | Preview the bundle without sending |
-| `--headed` | Show browser window during chat |
-| `--timeout <ms>` | Response timeout in milliseconds (default: 300000) |
-
-### `delegate <provider>`
-
-Start a provider-specific JSONL delegate for external AI callers that need multi-step control instead of a single one-shot prompt. The delegate opens the provider once, keeps the tab alive, then reads JSON commands from stdin and writes JSON responses to stdout.
-
-```bash
-# One long-lived provider session controlled over JSONL
-npx 10x-chat@latest delegate gemini --model Pro <<'EOF'
-{"id":1,"action":"status"}
-{"id":2,"action":"submit","prompt":"Draft three launch angles for this product."}
-{"id":3,"action":"capture","timeoutMs":600000}
-{"id":4,"action":"close"}
-EOF
-
-# Convenience combined action: select model/files, submit, capture
-printf '%s\n' '{"action":"chat","model":"Thinking","prompt":"Review this pasted plan."}' \
-  | npx 10x-chat@latest delegate gemini
-```
-
-Supported actions: `status`, `goto`, `selectModel`, `attach`, `submit`, `capture`, `chat`, `eval`, `close`.
-
-| Flag | Description |
-|------|-------------|
-| `--model <name>` | Select a model/mode immediately after opening |
-| `--headed` | Show browser window |
-| `--timeout <ms>` | Default capture timeout |
-| `--isolated-profile` | Use per-provider browser profile |
-| `--no-login-check` | Start even if login detection fails |
-
-### `image`
-
-Generate images via ChatGPT (DALL-E), Gemini (Imagen), or Grok with non-blocking polling.
-
-```bash
-npx 10x-chat@latest image -p "A fox astronaut in space, digital art" --provider chatgpt
-npx 10x-chat@latest image -p "Watercolor landscape" --provider gemini --save-dir ./images
-npx 10x-chat@latest image -p "Logo design" --provider grok --headed --timeout 120000
-```
-
-| Flag | Description |
-|------|-------------|
-| `-p, --prompt <text>` | **(required)** The image generation prompt |
-| `--provider <name>` | Provider: `chatgpt`, `gemini`, `grok` (default: chatgpt) |
-| `--headed` | Show browser window |
-| `--timeout <ms>` | Generation timeout (default: 120000) |
-| `--save-dir <dir>` | Directory to save generated images |
-
-### `research`
-
-Deep research via ChatGPT, Gemini, or Perplexity with non-blocking progress polling. Designed for long-running research tasks (5-10+ minutes).
-
-```bash
-npx 10x-chat@latest research -p "Latest breakthroughs in quantum computing" --provider gemini
-npx 10x-chat@latest research -p "Hard technical research" --provider gemini --model "Deep Think"
-npx 10x-chat@latest research -p "Market analysis of EVs" --provider chatgpt --timeout 600000
-npx 10x-chat@latest research -p "Compare React vs Vue in 2026" --provider perplexity --save-dir ./reports
-```
-
-| Flag | Description |
-|------|-------------|
-| `-p, --prompt <text>` | **(required)** The research query |
-| `--provider <name>` | Provider: `chatgpt`, `gemini`, `perplexity` (default: gemini) |
-| `--model <name>` | Optional model/mode to select before starting research |
-| `--headed` | Show browser window |
-| `--timeout <ms>` | Total timeout (default: 600000 / 10 min) |
-| `--poll-interval <ms>` | Progress check interval (default: 5000) |
-| `--save-dir <dir>` | Directory to save the research report |
-
-### `video`
-
-Generate video via browser automation — **Google Flow** (Veo) or **Dreamina** (Seedance).
-
-```bash
-# Google Flow / Veo (default) — uses your Google login (shared with Gemini)
-npx 10x-chat@latest video -p "A drone shot over snowy mountains at sunrise" --provider flow
-npx 10x-chat@latest video -p "Neon city street, rain" --provider flow --model "Omni Flash" --duration 10 --orientation portrait
-npx 10x-chat@latest video -p "She walks forward" --provider flow --image ref.png   # image-to-video
-
-# Dreamina / Seedance (CapCut)
-npx 10x-chat@latest login dreamina   # one-time CapCut login
-npx 10x-chat@latest video -p "A paper boat in a rain gutter, macro" --provider dreamina --aspect 9:16 --dreamina-duration 4
-npx 10x-chat@latest video -p "The glowing orb pulses and floats up" --provider dreamina --image ref.png --ref-mode omni
-```
-
-Shared flags:
-
-| Flag | Description |
-|------|-------------|
-| `-p, --prompt <text>` | **(required)** The video generation prompt |
-| `--provider <name>` | `flow` (default) or `dreamina` |
-| `--model <name>` | Model (provider-specific — see below) |
-| `--headed` | Show browser window during generation |
-| `--timeout <ms>` | Generation timeout (default: 600000 / 10 min) |
-| `--save-dir <dir>` | Directory to save generated videos |
-
-**Flow (Veo)** — models: `Omni Flash` (default), `Veo 3.1 - Lite`, `Veo 3.1 - Fast`, `Veo 3.1 - Quality`.
-
-| Flag | Description |
-|------|-------------|
-| `--mode <mode>` | `ingredients` (default) or `frames` |
-| `--orientation <dir>` | `landscape` (default) or `portrait` |
-| `--count <n>` | Simultaneous generations (1-4) |
-| `--image <path>` | Reference image for image-to-video (ingredients mode) |
-| `--duration <secs>` | Clip length in seconds: `4`, `6`, `8`, `10` |
-| `--start-frame <path>` / `--end-frame <path>` | Keyframe images (frames mode) |
-
-**Dreamina (Seedance)** — requires `login dreamina` (CapCut account). Models: `Seedance 2.0 Fast` (default, cheapest), `Seedance 2.0`; `Seedance 1.5 Pro` / `1.0` / `1.0 Fast` may be locked depending on your plan/region.
-
-| Flag | Description |
-|------|-------------|
-| `--aspect <ratio>` | `21:9`, `16:9`, `4:3`, `1:1`, `3:4`, `9:16` |
-| `--resolution <res>` | `720P` (default) or `1080P` (model-dependent) |
-| `--dreamina-duration <secs>` | Clip length in seconds (4-15) |
-| `--ref-mode <mode>` | Input-image mode: `omni` (default), `frames`, `multiframes` |
-| `--image <path>` | Reference/input image for image-to-video (repeatable, up to 12) |
-
-### `history`
-
-List chat history visible in provider sidebars (ChatGPT, Gemini, Claude, Grok, Perplexity).
-
-```bash
-npx 10x-chat@latest history --provider gemini
-npx 10x-chat@latest history --provider all --limit 10
-npx 10x-chat@latest history --provider chatgpt --json
-```
-
-| Flag | Description |
-|------|-------------|
-| `--provider <name>` | Provider: `chatgpt`, `gemini`, `claude`, `grok`, `perplexity`, or `all` (default: all) |
-| `--limit <n>` | Maximum items per provider (default: 20) |
-| `--headed` | Show browser window |
-| `--json` | Output JSON |
-
-### `status`
-
-List local 10x-chat CLI sessions.
-
-```bash
-npx 10x-chat@latest status              # Last 24 hours
-npx 10x-chat@latest status --hours 72   # Last 3 days
-```
-
-### `session <id>`
-
-View details of a specific session.
-
-```bash
-npx 10x-chat@latest session <id> --render   # Pretty-print the response
-```
-
-### `config`
-
-View or modify configuration.
-
-```bash
-npx 10x-chat@latest config show
-npx 10x-chat@latest config set provider gemini
-npx 10x-chat@latest config set timeout 600000
-npx 10x-chat@latest config set headless false
-```
-
-### `skill`
-
-Manage the agent integration skill (for Codex, Claude Code, etc).
-
-```bash
-npx 10x-chat@latest skill install   # Install SKILL.md to ~/.codex/skills/
-npx 10x-chat@latest skill show      # Display SKILL.md content
-```
-
-### `notebooklm` (alias: `nb`)
-
-Manage NotebookLM notebooks and sources via RPC API.
-
-```bash
-npx 10x-chat@latest notebooklm list                              # List all notebooks
-npx 10x-chat@latest notebooklm create "Research Topic"            # Create a notebook
-npx 10x-chat@latest notebooklm delete <notebookId>                # Delete a notebook
-npx 10x-chat@latest notebooklm sources <notebookId>               # List sources in notebook
-npx 10x-chat@latest notebooklm add-url <notebookId> <url>         # Add URL source
-npx 10x-chat@latest notebooklm add-url <notebookId> <url> --wait  # Add URL and wait for processing
-npx 10x-chat@latest notebooklm add-file <notebookId> ./paper.pdf  # Upload file source
-npx 10x-chat@latest notebooklm add-text <id> "Title" "Content"    # Add pasted text source
-npx 10x-chat@latest notebooklm summarize <notebookId>             # AI summary + suggested topics
-
-# Then chat with the notebook's sources:
-npx 10x-chat@latest chat -p "Summarize key points" --provider notebooklm
-```
-
-### `migrate`
-
-Merge older per-provider isolated browser profiles into the single shared
-profile used by default. Useful when upgrading from a version that stored a
-separate profile per provider.
-
-```bash
-npx 10x-chat@latest migrate --dry-run            # Preview without making changes
-npx 10x-chat@latest migrate                      # Auto-pick the largest profile as the base
-npx 10x-chat@latest migrate --source chatgpt     # Use a specific provider's profile as the base
-npx 10x-chat@latest migrate --keep               # Keep the old isolated profiles after migrating
-```
-
-## File Bundling
-
-The `--file` flag accepts globs. Files are assembled into a markdown bundle sent as the prompt:
-
-```bash
-npx 10x-chat@latest chat -p "Review these" --file "src/**/*.ts" "!src/**/*.test.ts"
-```
-
-Security-sensitive files (`.env*`, `*.pem`, `*.key`, etc.) are automatically excluded.
-
-## Data Layout
-
-```
-~/.10x-chat/
-├── profiles/
-│   ├── chatgpt/          # Playwright persistent browser profile
-│   ├── gemini/
-│   ├── claude/
-│   ├── grok/
-│   └── notebooklm/       # NotebookLM browser profile (shared Google auth)
-├── sessions/
-│   └── <uuid>/
-│       ├── meta.json     # Session metadata
-│       ├── bundle.md     # Prompt bundle sent
-│       └── response.md   # Captured response
-└── config.json           # User configuration
-```
-
-## Agent Integration
-
-10x-chat includes a `SKILL.md` for AI coding agents. Install it with:
-
-```bash
-npx 10x-chat@latest skill install
-```
-
-This lets agents like Codex or Claude Code use 10x-chat to query other models for cross-validation, code review, or debugging help.
-
-## Use from an agent (MCP)
-
-`10x-chat mcp` starts a [Model Context Protocol](https://modelcontextprotocol.io) server on stdio. Agents can then use the web AIs as tools. It uses the same browser profile and daemon as the CLI, so log in first with `10x-chat login <provider>`.
-
-```bash
-claude mcp add 10x -- 10x-chat mcp
-```
-
-Other MCP clients:
+Merge this server into `~/.mcporter/mcporter.json`. Keep other server entries:
 
 ```json
 {
   "mcpServers": {
-    "10x-chat": { "command": "10x-chat", "args": ["mcp"] }
+    "chrome-existing": {
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest", "--autoConnect"]
+    }
   }
 }
 ```
 
-| Tool | Params | Notes |
-|------|--------|-------|
-| `providers_list` | — | Read-only. Name, display name, default model, models, supported tools |
-| `chat` | `prompt`, `provider?`, `model?`, `files?`, `attach?`, `timeout_seconds?` | One provider |
-| `chat_many` | `prompt`, `providers?` (default: all chat providers), `model?`, `files?`, `attach?`, `timeout_seconds?` | Parallel; one result or error per provider |
-| `research` | `prompt`, `provider?` (gemini, chatgpt, perplexity), `model?`, `timeout_seconds?` | Usually returns a job |
-| `image` | `prompt`, `provider?` (chatgpt, gemini, grok), `save_dir?`, `timeout_seconds?` | Returns local image paths |
-| `get_job` | `job_id`, `wait_seconds?` (max 30) | Read-only. Status `running` / `done` / `failed` / `cancelled` |
-| `cancel_job` | `job_id` | Marks the job cancelled and drops its result |
-| `session_get` | `session_id` | Read-only. Session metadata + response text |
+Open your own Chrome. Go to `chrome://inspect/#remote-debugging` and allow remote
+debugging. Allow the connection when Chrome asks. Check the connection:
 
-`files` and `attach` take local paths only (no globs), max 25 MB total.
-
-**Job model.** Each write tool starts a job and waits up to 20 s. If the job finishes, you get the result. If not, you get `{job_id, status: "running"}`; call `get_job` (with `wait_seconds`) until the status is not `running`. Jobs are in memory and end when the server stops. `cancel_job` does not stop the browser step that is running now; the result is dropped.
-
-**Errors** come back as tool errors with a JSON body `{code, message, retry}`. `retry` is `yes`, `no`, or `after_login`. Codes: `not_logged_in` (run `10x-chat login <provider>`), `unknown_provider`, `unsupported`, `invalid_input`, `timeout`, `provider_error`, `job_not_found`, `session_not_found`.
-
-## Custom Providers
-
-The package API supports out-of-tree providers for custom web chat sites. Register a provider before calling `runChat()`:
-
-```typescript
-import { registerProvider, runChat, type Provider } from '10x-chat';
-
-const customProvider = {
-  config: {
-    name: 'custom-chat',
-    displayName: 'Custom Chat',
-    url: 'https://chat.example.com',
-    loginUrl: 'https://chat.example.com/login',
-    defaultTimeoutMs: 300_000,
-  },
-  actions: {
-    isLoggedIn: (page) => page.locator('[data-user-menu]').isVisible(),
-    submitPrompt: async (page, prompt) => {
-      await page.locator('textarea').fill(prompt);
-      await page.getByRole('button', { name: 'Send' }).click();
-    },
-    captureResponse: async (page, { timeoutMs }) => {
-      const response = page.locator('[data-role="assistant"]').last();
-      await response.waitFor({ timeout: timeoutMs });
-      const text = (await response.innerText()).trim();
-      return { text, markdown: text, truncated: false };
-    },
-  },
-} satisfies Provider;
-
-registerProvider(customProvider);
-const result = await runChat({ provider: 'custom-chat', prompt: 'Hello' });
-console.log(result.response);
+```bash
+bunx mcporter list chrome-existing
+bunx mcporter call chrome-existing.list_pages
 ```
 
-Provider names must be 1-64 lowercase letters, numbers, or hyphens and must start and end with a letter or number. Registration is process-local and rejects duplicate names, including attempts to replace built-in providers. A separate provider package can export the provider object or a registration function; the stock CLI does not dynamically discover npm packages.
+## Skills
 
-## Supported Providers
+| Skill | Use |
+|---|---|
+| 10x-chat | Router, setup, shared procedures, parallel comparison |
+| 10x-chat-gemini | Chat, images, research |
+| 10x-chat-chatgpt | Chat, images, research |
+| 10x-chat-claude | Chat, analysis, files |
+| 10x-chat-grok | Chat, images |
+| 10x-chat-perplexity | Search, research |
+| 10x-chat-notebooklm | Sources and grounded chat |
+| 10x-chat-flow | Images and video |
+| 10x-chat-dreamina | Seedance video |
+| 10x-chat-login | User login recovery |
+| 10x-chat-wait-user | Captcha, consent, quota, and other blocks |
+| 10x-chat-best-model | Inspect, rank, select, verify, and cache models |
 
-| Provider | Status | Models | URL |
-|----------|--------|--------|-----|
-| ChatGPT | ✅ chat + image | — | chatgpt.com |
-| Gemini | ✅ chat + image | Flash-Lite, **Flash** (default), Pro, Argon, Deep Think | gemini.google.com |
-| Claude | ✅ chat | — | claude.ai |
-| Grok | ✅ chat + image | — | grok.com |
-| Perplexity | ✅ | — | perplexity.ai |
-| NotebookLM | ✅ | — | notebooklm.google.com |
-| Google Flow | ✅ video (Veo) | **Omni Flash** (default), Veo 3.1 Lite/Fast/Quality | labs.google/fx/tools/flow |
-| Dreamina | ✅ video (Seedance) | Seedance 2.0 Fast/2.0 (1.x often plan-locked) | dreamina.capcut.com |
+Ask the agent to use 10x-chat with a provider, prompt, optional files, and model.
+For example: “Use 10x-chat to ask Gemini and Claude to review this design.
+Compare their agreement, disagreement, and unique points.”
+
+Login and human checks stay in Chrome. Each page call uses pageId. Prompts use
+insertText so newlines do not submit early. Model lists depend on the account;
+the skill checks the live menu. DOM selectors can change. Fixture tests check
+contracts and known cases; they do not prove that a live site still matches.
 
 ## Development
 
+From this app folder:
+
 ```bash
 bun install
-bun run dev login chatgpt      # Run CLI in dev mode
-bun run typecheck               # Type check
-bun run lint                    # Lint
-bun run test                    # Run tests
-bun run build                   # Build for production
+bun run typecheck && bun run lint && bun run test
+bash -n skills/10x-chat/bin/*.sh
 ```
 
-### Debug a provider UI in your own Chrome
-
-When a provider selector breaks (for example, a changed model picker), read the live page in your
-running Chrome. Use [mcporter](https://github.com/steipete/mcporter) with a `chrome-existing` server
-(`chrome-devtools-mcp --autoConnect`):
-
-```bash
-# 0. Check that mcporter knows the server (one-time)
-bunx mcporter list chrome-existing
-
-# 1. Find the page id of the provider tab: filter by URL
-bunx mcporter call chrome-existing.list_pages | grep gemini.google.com
-
-# 2. Read the page. Pass pageId on EVERY call.
-bunx mcporter call chrome-existing.take_snapshot --args '{"pageId":263}' | grep -i "mode picker"
-bunx mcporter call chrome-existing.evaluate_script \
-  --args '{"pageId":263,"function":"() => ({ title: document.title, picker: document.querySelector(\"[aria-label*=picker]\")?.getAttribute(\"aria-label\") })"}'
-# → {"title":"... - Google Gemini","picker":"Open mode picker, currently Argon"}
-```
-
-- One Chrome connection, no extra prompts: mcporter's daemon keeps `chrome-existing` running, so
-  every `mcporter call` reuses the same chrome-devtools-mcp process and Chrome asks to allow it
-  only once. Check with `bunx mcporter daemon status`. If Chrome asks on every call, put
-  `MCPORTER_KEEPALIVE=chrome-existing` before the command.
-- Page tools need `pageId` on every call. A call without it fails with
-  `pageId: Invalid input: expected number`.
-- `list_pages` and `take_snapshot` print a lot. Filter them with `grep`.
-- If more than one tab matches, pick the chat tab, not a login or OAuth tab with the same host.
-- Use `--args` JSON. The `key:value` form breaks on `=>` in a script. Inside the JSON, escape
-  quotes as `\"`, and keep selectors simple (no spaces).
-- `evaluate_script` can return an object; it comes back as JSON.
-- Page ids change when tabs open or close. Run `list_pages` again before you use an id.
-- This reads your real Chrome, not the 10x-chat profile. Login state can be different.
-- Read only. Do not click or type in your own tabs, and only run scripts that read the page.
-- If `chrome-existing` is missing, add it to `~/.mcporter/mcporter.json` as
-  `npx chrome-devtools-mcp@latest --autoConnect`, and allow remote debugging in Chrome
-  (`chrome://inspect/#remote-debugging`) when Chrome asks.
-
-## Publishing
-
-Releases are automated via GitHub Actions. Push an `agent-skill-v<version>` tag to publish:
-
-```bash
-npm version patch --no-git-tag-version   # or minor / major
-git commit -am "chore(agent-skill): bump version to <version>"
-git tag agent-skill-v<version>
-git push origin main agent-skill-v<version>
-```
-
-Publishing uses npm trusted publishing (OIDC). No token is stored. The trusted publisher on npmjs.com is `MikeChongCan/10x-chat`, workflow `agent-skill-release.yml`.
-
-## Disclaimer
-
-This project is provided **for research and educational purposes only**. It
-automates web interfaces that may be subject to the terms of service of the
-respective providers. You are solely responsible for how you use it, including
-compliance with any applicable terms, and you use it at your own risk.
-
-## License
-
-MIT © Mike Chong — see [LICENSE](./LICENSE).
+See [AGENTS.md](AGENTS.md) to add a provider. No release tag is used for these skills.

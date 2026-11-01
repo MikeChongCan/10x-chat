@@ -34,5 +34,8 @@
     "enabled": true,
     "clientKind": "git",
     "useIgnoreFile": true
+  },
+  "files": {
+    "includes": ["package.json", "tsconfig.json", "biome.json", "tests/**/*.ts", "skills/**/*.js"]
   }
 }
