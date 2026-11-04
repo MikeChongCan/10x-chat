@@ -48,6 +48,21 @@ bunx mcporter call chrome-existing.list_pages
 If the error says `DevToolsActivePort` and `EPERM`, the mcporter daemon started in a
 sandbox. Run `bunx mcporter daemon stop`, then run the call again outside the sandbox.
 
+## Optional: 10xWise bridge
+
+The 10xWise extension can open tabs, run browser functions, and focus or close
+tabs without remote debugging. It uses a native messaging host and a local Unix
+socket (`~/.10x-chat/bridge.sock`). There is no TCP port.
+
+```bash
+skills/10x-chat/bridge/install.sh            # --browser, --extension-id, --uninstall
+```
+
+Then open the 10xWise options, enable Agent bridge, and turn on "Allow User
+Scripts" for 10xWise in `chrome://extensions`. The helpers use the bridge when
+it is ready and fall back to CDP. Snapshot, click, and upload still use CDP.
+The socket lets any process run by this user execute JS in any tab, same as CDP.
+
 ## Skills
 
 | Skill | Use |
@@ -69,7 +84,8 @@ Ask the agent to use 10x-chat with a provider, prompt, optional files, and model
 For example: “Use 10x-chat to ask Gemini and Claude to review this design.
 Compare their agreement, disagreement, and unique points.”
 
-Login and human checks stay in Chrome. Each page call uses pageId. Prompts use
+Login and human checks stay in Chrome. Each page call uses pageId; for chrome-existing tools such as take_snapshot,
+click, and upload_file, pass `$(../10x-chat/bin/cdp-id.sh "$PAGE")`. Prompts use
 insertText so newlines do not submit early. Model lists depend on the account;
 the skill checks the live menu. DOM selectors can change. Fixture tests check
 contracts and known cases; they do not prove that a live site still matches.

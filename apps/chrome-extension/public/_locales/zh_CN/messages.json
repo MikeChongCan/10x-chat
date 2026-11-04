@@ -358,5 +358,45 @@
   "clipError": {
     "message": "保存页面失败",
     "description": "Status when clipping fails"
+  },
+  "agentBridgeTitle": {
+    "message": "智能体桥接",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeDesc": {
+    "message": "让本地编程智能体通过本扩展控制标签页，而不是远程调试。",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeOn": {
+    "message": "已开启",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeOff": {
+    "message": "已关闭",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeEnable": {
+    "message": "启用",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeDisable": {
+    "message": "停用",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepInstall": {
+    "message": "在 agent-skill 文件夹中运行",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepEnable": {
+    "message": "点击启用并接受权限。",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepUserScripts": {
+    "message": "打开 chrome://extensions，打开 10xWise 详情，开启“允许用户脚本”。",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeError": {
+    "message": "无法更改权限。",
+    "description": "Agent bridge options"
   }
 }

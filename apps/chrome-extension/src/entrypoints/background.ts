@@ -4,6 +4,7 @@ import {
 } from "../background/integration-session"
 import handleLaunchQueries from "../background/messages/launchQueries"
 import { clipActiveTabHandler } from "../background/messages/clipActiveTab"
+import { handleBridgeStartMessage, startAgentBridge, type BridgeChrome } from "../background/agent-bridge"
 
 const MANAGED_KEY = "extensionManagedIds"
 const SERVICE_TAB_KEY = "serviceTabMap"
@@ -37,6 +38,8 @@ const isIntegrationMessage = (message: unknown): message is IntegrationMessage =
 export default defineBackground(() => {
   console.log("10x Chat Browser background service worker initialized.")
 
+  const agentBridge = startAgentBridge(chrome as unknown as BridgeChrome)
+
   chrome.runtime.onInstalled.addListener(() => {
     try {
       chrome.contextMenus?.create({
@@ -66,6 +69,8 @@ export default defineBackground(() => {
   })
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (handleBridgeStartMessage(agentBridge, message, sendResponse)) return true
+
     if (message?.name === "launchQueries") {
       handleLaunchQueries(
         { body: message.body },

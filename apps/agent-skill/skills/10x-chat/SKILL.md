@@ -17,6 +17,12 @@ Small browser functions find their own elements and return JSON.
    `chrome://inspect/#remote-debugging`. See [setup](../../README.md).
 4. Run `bunx mcporter call chrome-existing.list_pages`. On `DevToolsActivePort`
    `EPERM`, run `bunx mcporter daemon stop` and retry outside the sandbox.
+5. Optional, preferred: the 10xWise bridge. Run `bridge/install.sh`, click
+   Enable in the 10xWise options Agent bridge section, and turn on "Allow User
+   Scripts" for 10xWise in `chrome://extensions`. Check with `bin/bridge.sh ping`.
+   Open, JS, and select/close use the bridge. CDP is still needed for snapshot,
+   click, and upload. Security: the bridge socket lets any process run by this
+   user execute JS in any tab, same as CDP.
 
 ## Route by situation
 
@@ -60,7 +66,10 @@ Build absolute paths from the loaded skill folder. Helpers accept a page ID.
 ```
 
 `ROUTER` is this skill folder. `PROVIDER` is the chosen provider skill folder.
-Set `PAGE` to the ID from open. Every page tool call must include `pageId`.
+Set `PAGE` to the ID from open: `t<tabId>` on the bridge, a number on CDP.
+Exit 69 from `bin/bridge.sh` means bridge unavailable; `TENX_BRIDGE=off` skips it.
+Use `bin/page.sh select|close "$PAGE"` to focus or close a tab. For any
+chrome-existing tool, pass `pageId` as `$("$ROUTER/bin/cdp-id.sh" "$PAGE")`.
 `js.sh` reads a function from disk and sends its text as `function`.
 It prints JSON. It does not use `sourcePath`.
 `wait.sh` polls every 3 seconds. It requires nonempty text, no generation,

@@ -17,6 +17,8 @@ export default defineConfig({
       "scripting",
       "contextMenus"
     ],
+    optional_permissions: ["nativeMessaging", "userScripts"],
+    optional_host_permissions: ["<all_urls>"],
     commands: {
       "clip-to-markdown": {
         suggested_key: {

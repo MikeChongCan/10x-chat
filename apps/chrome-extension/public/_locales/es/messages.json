@@ -358,5 +358,45 @@
   "clipError": {
     "message": "Error al capturar la página",
     "description": "Status when clipping fails"
+  },
+  "agentBridgeTitle": {
+    "message": "Puente de agentes",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeDesc": {
+    "message": "Permite que agentes de código locales controlen pestañas con esta extensión en lugar de la depuración remota.",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeOn": {
+    "message": "Activado",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeOff": {
+    "message": "Desactivado",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeEnable": {
+    "message": "Activar",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeDisable": {
+    "message": "Desactivar",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepInstall": {
+    "message": "En la carpeta agent-skill, ejecuta",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepEnable": {
+    "message": "Haz clic en Activar y acepta los permisos.",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepUserScripts": {
+    "message": "Abre chrome://extensions, abre los detalles de 10xWise y activa \"Permitir scripts de usuario\".",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeError": {
+    "message": "No se pudieron cambiar los permisos.",
+    "description": "Agent bridge options"
   }
 }

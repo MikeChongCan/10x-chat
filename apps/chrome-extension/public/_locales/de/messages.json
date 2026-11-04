@@ -358,5 +358,45 @@
   "clipError": {
     "message": "Fehler beim Speichern der Seite",
     "description": "Status when clipping fails"
+  },
+  "agentBridgeTitle": {
+    "message": "Agent-Brücke",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeDesc": {
+    "message": "Lokale Coding-Agenten steuern Tabs über diese Erweiterung statt über Remote-Debugging.",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeOn": {
+    "message": "An",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeOff": {
+    "message": "Aus",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeEnable": {
+    "message": "Aktivieren",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeDisable": {
+    "message": "Deaktivieren",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepInstall": {
+    "message": "Im Ordner agent-skill ausführen:",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepEnable": {
+    "message": "Auf Aktivieren klicken und die Berechtigungen bestätigen.",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepUserScripts": {
+    "message": "chrome://extensions öffnen, Details von 10xWise öffnen und \"Nutzerskripts zulassen\" einschalten.",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeError": {
+    "message": "Berechtigungen konnten nicht geändert werden.",
+    "description": "Agent bridge options"
   }
 }

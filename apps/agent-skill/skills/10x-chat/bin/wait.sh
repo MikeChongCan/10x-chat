@@ -3,7 +3,7 @@
 # MIN_COUNT=n: wait until read.js .count >= n (set it to the count before send + 1).
 set -euo pipefail
 [[ ${MIN_COUNT:-0} =~ ^[0-9]+$ ]] || { echo 'MIN_COUNT must be a number' >&2; exit 2; }
-[[ $# -ge 2 && $# -le 3 && $1 =~ ^[0-9]+$ && ${3:-600} =~ ^[1-9][0-9]*$ ]] || { echo 'Usage: wait.sh <pageId> <provider-dir> [timeoutSec=600]' >&2; exit 2; }
+[[ $# -ge 2 && $# -le 3 && $1 =~ ^(t[0-9]+|[0-9]+)$ && ${3:-600} =~ ^[1-9][0-9]*$ ]] || { echo 'Usage: wait.sh <pageId> <provider-dir> [timeoutSec=600]' >&2; exit 2; }
 page=$1
 provider=$2
 seconds=${3:-600}

@@ -343,7 +343,7 @@ describe('provider regressions', () => {
 
 describe('shell contracts', () => {
   it('checks all helper shell syntax', () => {
-    for (const file of ['js', 'open', 'wait']) {
+    for (const file of ['js', 'open', 'wait', 'bridge', 'page', 'cdp-id']) {
       execFileSync('bash', ['-n', `skills/10x-chat/bin/${file}.sh`]);
     }
   });
@@ -391,7 +391,12 @@ if (args.includes('chrome-existing.new_page')) {
 `;
     writeFileSync(join(temp, 'bunx'), mock, { mode: 0o755 });
     writeFileSync(join(temp, 'sleep'), '#!/usr/bin/env bash\nexit 0\n', { mode: 0o755 });
-    env = { ...process.env, PATH: `${temp}:${process.env.PATH}`, MOCK_COUNT: join(temp, 'count') };
+    env = {
+      ...process.env,
+      PATH: `${temp}:${process.env.PATH}`,
+      MOCK_COUNT: join(temp, 'count'),
+      TENX_BRIDGE_SOCK: join(temp, 'missing.sock'),
+    };
   });
   afterEach(() => rmSync(temp, { recursive: true, force: true }));
   function shell(name: string, args: string[], mode: string, extra: NodeJS.ProcessEnv = {}) {
