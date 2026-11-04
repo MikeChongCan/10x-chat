@@ -42,6 +42,9 @@ bunx mcporter list chrome-existing
 bunx mcporter call chrome-existing.list_pages
 ```
 
+如果错误包含 `DevToolsActivePort` 和 `EPERM`，说明 mcporter 守护进程是在沙箱里启动的。
+运行 `bunx mcporter daemon stop`，然后在沙箱外再运行一次。
+
 ## 技能列表
 
 | 技能 | 用途 |

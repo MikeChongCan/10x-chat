@@ -15,7 +15,8 @@ Small browser functions find their own elements and return JSON.
    `npx chrome-devtools-mcp@latest --autoConnect`.
 3. If Chrome is not connected, ask the user to allow remote debugging at
    `chrome://inspect/#remote-debugging`. See [setup](../../README.md).
-4. Run `bunx mcporter call chrome-existing.list_pages`.
+4. Run `bunx mcporter call chrome-existing.list_pages`. On `DevToolsActivePort`
+   `EPERM`, run `bunx mcporter daemon stop` and retry outside the sandbox.
 
 ## Route by situation
 
