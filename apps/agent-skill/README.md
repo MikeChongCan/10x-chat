@@ -45,6 +45,9 @@ bunx mcporter list chrome-existing
 bunx mcporter call chrome-existing.list_pages
 ```
 
+If the error says `DevToolsActivePort` and `EPERM`, the mcporter daemon started in a
+sandbox. Run `bunx mcporter daemon stop`, then run the call again outside the sandbox.
+
 ## Skills
 
 | Skill | Use |
