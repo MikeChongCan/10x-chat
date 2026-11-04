@@ -86,7 +86,9 @@ class FakePort implements PortLike {
   emit(message: unknown) {
     for (const listener of this.messageListeners) listener(message)
   }
+  closed = false
   disconnect() {
+    this.closed = true
     for (const listener of this.disconnectListeners) listener()
   }
 }
@@ -300,6 +302,28 @@ describe("agent bridge connection", () => {
     })
     expect(onStartup.addListener).toHaveBeenCalledTimes(1)
     expect(onAdded.addListener).toHaveBeenCalledTimes(1)
+  })
+
+  it("disconnects and stays stopped when bridge permissions are removed", async () => {
+    const { api, ports } = fakeChrome()
+    let granted = true
+    let onRemoved: (() => void) | undefined
+    const bridge = startAgentBridge({
+      ...api,
+      permissions: {
+        ...api.permissions,
+        contains: async () => granted,
+        onRemoved: { addListener: (listener: () => void) => (onRemoved = listener) }
+      }
+    })
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(ports).toHaveLength(1)
+    granted = false
+    onRemoved?.()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    expect(ports[0].closed).toBe(true)
+    expect(bridge.state()).toMatchObject({ connected: false, stopped: true })
+    expect(ports).toHaveLength(1)
   })
 
   it("does not connect without nativeMessaging", async () => {

@@ -31,6 +31,7 @@ export type UserScriptsApi = {
 
 export type PortLike = {
   postMessage: (message: unknown) => void
+  disconnect: () => void
   onMessage: { addListener: (listener: (message: unknown) => void) => void }
   onDisconnect: { addListener: (listener: () => void) => void }
 }
@@ -45,6 +46,7 @@ export type BridgeChrome = {
   permissions: {
     contains: (permissions: { permissions?: string[]; origins?: string[] }) => Promise<boolean>
     onAdded?: { addListener: (listener: () => void) => void }
+    onRemoved?: { addListener: (listener: () => void) => void }
   }
   tabs: {
     query: (query: { windowType?: "normal" }) => Promise<BridgeTab[]>
@@ -319,8 +321,16 @@ export const createBridge = (
     connect()
   }
 
+  const stop = () => {
+    stopped = true
+    const current = port
+    port = null
+    current?.disconnect()
+  }
+
   return {
     start,
+    stop,
     state: () => ({ connected: port !== null, failures, stopped })
   }
 }
@@ -349,6 +359,11 @@ export const startAgentBridge = (api: BridgeChrome) => {
   const bridge = createBridge(api)
   api.permissions.onAdded?.addListener(() => {
     void bridge.start()
+  })
+  api.permissions.onRemoved?.addListener(() => {
+    void api.permissions.contains({ permissions: ["nativeMessaging"] }).then((granted) => {
+      if (!granted) bridge.stop()
+    })
   })
   api.runtime.onStartup?.addListener(() => {
     void bridge.start()
