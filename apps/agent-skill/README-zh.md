@@ -45,6 +45,19 @@ bunx mcporter call chrome-existing.list_pages
 如果错误包含 `DevToolsActivePort` 和 `EPERM`，说明 mcporter 守护进程是在沙箱里启动的。
 运行 `bunx mcporter daemon stop`，然后在沙箱外再运行一次。
 
+## 可选：10xWise 桥接
+
+10xWise 扩展可以不用远程调试就打开标签页、运行浏览器函数、聚焦或关闭标签页。
+它使用原生消息主机和本地 Unix 套接字（`~/.10x-chat/bridge.sock`），不开 TCP 端口。
+
+```bash
+skills/10x-chat/bridge/install.sh            # --browser、--extension-id、--uninstall
+```
+
+然后打开 10xWise 选项，启用 Agent bridge，并在 `chrome://extensions` 为 10xWise
+打开“允许用户脚本”。桥接可用时助手会使用它，否则回退到 CDP。快照、点击和上传仍然使用 CDP。
+该套接字允许本用户运行的任何进程在任何标签页执行 JS，与 CDP 相同。
+
 ## 技能列表
 
 | 技能 | 用途 |
@@ -64,7 +77,7 @@ bunx mcporter call chrome-existing.list_pages
 
 告诉代理使用 10x-chat，并给出服务、提示词、可选文件和模型。
 例如：“用 Gemini 和 Claude 审查这个设计，比较相同点、分歧和各自独有的观点。”
-登录和人工验证由用户在 Chrome 中完成。每个页面工具调用都需要 pageId。
+登录和人工验证由用户在 Chrome 中完成。每个页面工具调用都需要 pageId；take_snapshot、click、upload_file 等 chrome-existing 工具请传 `$(../10x-chat/bin/cdp-id.sh "$PAGE")`。
 提示词通过 insertText 插入，避免换行导致提前提交。模型列表以当前账号菜单为准。
 网页选择器可能变化。HTML 测试验证已知行为和数据约定，不代表已验证实时网页。
 

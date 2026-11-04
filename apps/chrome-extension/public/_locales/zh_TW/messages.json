@@ -358,5 +358,45 @@
   "clipError": {
     "message": "儲存頁面失敗",
     "description": "Status when clipping fails"
+  },
+  "agentBridgeTitle": {
+    "message": "智慧代理橋接",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeDesc": {
+    "message": "讓本機程式代理透過此擴充功能控制分頁，而非遠端偵錯。",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeOn": {
+    "message": "已開啟",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeOff": {
+    "message": "已關閉",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeEnable": {
+    "message": "啟用",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeDisable": {
+    "message": "停用",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepInstall": {
+    "message": "在 agent-skill 資料夾中執行",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepEnable": {
+    "message": "點擊啟用並接受權限。",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeStepUserScripts": {
+    "message": "開啟 chrome://extensions，開啟 10xWise 詳細資料，開啟「允許使用者指令碼」。",
+    "description": "Agent bridge options"
+  },
+  "agentBridgeError": {
+    "message": "無法變更權限。",
+    "description": "Agent bridge options"
   }
 }

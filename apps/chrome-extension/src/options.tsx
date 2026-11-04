@@ -3,6 +3,7 @@ import type { IntegrationSession } from "./background/integration-session"
 import { i18n } from "./lib/i18n"
 import { Button } from "./components/ui/button"
 import { Switch } from "./components/ui/switch"
+import { AgentBridgeSection } from "./components/AgentBridgeSection"
 import { Check, SpinnerGap } from "@phosphor-icons/react"
 import "./style.css"
 
@@ -286,6 +287,8 @@ function OptionsPage() {
             </label>
           </div>
         </section>
+
+        <AgentBridgeSection sectionClass={sectionClass} />
 
         <section className="mb-8">
           <div className="flex items-baseline justify-between mb-3">

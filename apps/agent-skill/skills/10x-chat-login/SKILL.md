@@ -12,7 +12,7 @@ Set `ROUTER` to the sibling `10x-chat` folder.
 2. Bring the tab forward:
 
    ```bash
-   bunx mcporter call chrome-existing.select_page --args "$(jq -nc --argjson p "$PAGE" '{pageId:$p,bringToFront:true}')"
+   "$ROUTER/bin/page.sh" select "$PAGE"
    ```
 
 3. The user enters credentials and codes. Never type or read credentials.

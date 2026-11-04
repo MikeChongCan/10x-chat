@@ -10,11 +10,11 @@ Use absolute skill folders. Set `ROUTER` to the `10x-chat` folder.
 3. If MODEL is set, select and verify it before sending. Use best-model for best
    or an unknown name. Otherwise keep the site's current model.
 4. Set chat, image, research, or video mode and its options as requested.
-   For controls without helpers, take_snapshot with pageId, then click with
-   pageId and the current uid. Snapshot again to verify the requested settings.
+   For controls without helpers, set `CDP=$("$ROUTER/bin/cdp-id.sh" "$PAGE")`,
+   take_snapshot with pageId `$CDP`, then click with that pageId and the current uid. Snapshot again to verify the requested settings.
 5. For FILES, reveal the attachment control. Take a fresh snapshot. Call
    `bunx mcporter call chrome-existing.upload_file --args` with JSON containing
-   `pageId`, the file input `uid`, and absolute `filePaths`. Wait for attachment
+   `pageId` (`$CDP` from `bin/cdp-id.sh`), the file input `uid`, and absolute `filePaths`. Wait for attachment
    thumbnails or source processing to finish. Use provider-specific source steps.
 6. Save the baseline: `BASE=$("$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/read.js" | jq .count)`.
    Insert the full prompt:
@@ -40,4 +40,4 @@ Use absolute skill folders. Set `ROUTER` to the `10x-chat` folder.
    Remote media can need login cookies. Use the browser download control if a
    direct URL fails. Do not export cookies. For images, wait for full generation.
 10. Close only tabs opened for this request, after capture or download, if the
-    user does not need them. Every close_page call must include pageId.
+    user does not need them. Run `"$ROUTER/bin/page.sh" close "$PAGE"`.

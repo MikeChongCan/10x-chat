@@ -1,8 +1,9 @@
 # Repair a provider helper
 
 1. Record the provider, pageId, helper, argument, and failed result.
-2. Call chrome-existing.take_snapshot with pageId. Inspect the changed control
-   or response. Use evaluate_script with pageId for a narrow DOM query if needed.
+2. Set `CDP=$(bin/cdp-id.sh "$PAGE")`. Call chrome-existing.take_snapshot with
+   pageId `$CDP`. Inspect the changed control or response. For a narrow DOM
+   query, run a small function file with `bin/js.sh "$PAGE"`.
 3. Find a stable selector: role, label, test ID, then stable class fragment.
    Check visible matches, hidden fallback editors, dialogs, and disabled entries.
 4. Fix the provider JS function. Keep one function expression per file.

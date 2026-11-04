@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# js.sh <pageId> <file.js> [json-arg]
+# js.sh <pageId|t<tabId>> <file.js> [json-arg]
 set -euo pipefail
-[[ $# -ge 2 && $# -le 3 && $1 =~ ^[0-9]+$ ]] || { echo 'Usage: js.sh <pageId> <file.js> [json-arg]' >&2; exit 2; }
+[[ $# -ge 2 && $# -le 3 && $1 =~ ^(t[0-9]+|[0-9]+)$ ]] || { echo 'Usage: js.sh <pageId> <file.js> [json-arg]' >&2; exit 2; }
 page=$1
 file=$2
 arg=${3:-null}
@@ -11,6 +11,11 @@ limit=$(command -v gtimeout || command -v timeout)
 encoded=$(jq -nc --argjson value "$arg" '$value | tojson')
 source=$(cat "$file")
 source=${source%;}
+if [[ $page == t* ]]; then
+  base=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+  code="($source)(JSON.parse($encoded))"
+  exec "$base/bridge.sh" evaluate "$(jq -nc --argjson t "${page#t}" --arg c "$code" '{tabId:$t,code:$c}')"
+fi
 fn="() => ($source)(JSON.parse($encoded))"
 result=$("$limit" "${MC_TIMEOUT:-60}" bunx mcporter call chrome-existing.evaluate_script \
   --args "$(jq -nc --arg f "$fn" --argjson p "$page" '{pageId:$p,function:$f}')" --output json)
