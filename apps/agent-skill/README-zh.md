@@ -41,6 +41,7 @@ Chrome 提示连接时，允许连接。检查服务：
 ```bash
 bunx mcporter list chrome-existing
 bunx mcporter call chrome-existing.list_pages
+skills/10x-chat/bin/doctor.sh   # 检查整套配置，并给出修复方法
 ```
 
 如果错误包含 `DevToolsActivePort` 和 `EPERM`，说明 mcporter 守护进程是在沙箱里启动的。

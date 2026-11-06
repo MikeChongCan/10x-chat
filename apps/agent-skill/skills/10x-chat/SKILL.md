@@ -10,7 +10,8 @@ Small browser functions find their own elements and return JSON.
 
 ## Setup check
 
-1. Check `bunx`, `jq`, and `gtimeout` or `timeout` with `command -v`.
+1. Run `bin/doctor.sh`. It checks the tools, the config, the relay route, the Chrome
+   connection, and the bridge, and prints a fix for each failure. Steps 2-5 explain them.
 2. Run `bunx mcporter list chrome-existing`. The server must use
    `npx chrome-devtools-mcp@latest --autoConnect` with env
    `MCPORTER_CHROME_DEVTOOLS_RELAY_POLICY=off`. Without it, mcporter 0.17+ tries the

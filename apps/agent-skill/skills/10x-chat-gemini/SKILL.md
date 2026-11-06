@@ -21,6 +21,7 @@ Set `PROVIDER` to this folder and `ROUTER` to its sibling `10x-chat` folder.
 7. Apply the provider steps in Known quirks below. Check requested settings in a snapshot.
 8. Run `js/insert.js` with `{"text":"the full prompt"}`. Check `ok=true` and `len`.
 9. Run `js/send.js` once. Check `ok=true`. Keep the page open during generation.
+   Then run `../10x-chat/bin/page.sh select` with the page ID. Gemini does not finish in a background tab.
 10. Run `../10x-chat/bin/wait.sh` with the page ID and this folder.
     It runs `js/state.js` and `js/read.js`. Return the answer, links, and media URLs.
 11. For a missing element or wrong result, use [debug provider](../10x-chat/references/debug-provider.md).
@@ -34,4 +35,4 @@ Use the shared best-model skill for ranking and cache rules.
 
 ## Known quirks
 
-The mode menu is in `[popover]`, not just `.cdk-overlay-container`. The picker label can be "Open mode picker, currently Argon". Match names without version numbers. Answers are in `message-content`. Stop buttons and image/research progress mean generation is active. For images, wait for loading to finish. For research, use the tools menu, choose Deep Research, submit, then confirm Start research if shown.
+The mode menu is in `[popover]`, not just `.cdk-overlay-container`. The picker label can be "Open mode picker, currently Argon". Match names without version numbers. Answers are in `message-content`. In a background tab the answer can stay in the generating state until the tab is selected; seen 2026-11-06 with Pro (ChatGPT finished in the background). Stop buttons and image/research progress mean generation is active. For images, wait for loading to finish. For research, use the tools menu, choose Deep Research, submit, then confirm Start research if shown.
