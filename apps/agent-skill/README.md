@@ -44,7 +44,7 @@ debugging. Allow the connection when Chrome asks. Check the connection:
 ```bash
 bunx mcporter list chrome-existing
 bunx mcporter call chrome-existing.list_pages
-skills/10x-chat/bin/doctor.sh   # checks the whole setup and prints fixes
+apps/agent-skill/skills/10x-chat/bin/doctor.sh   # checks the whole setup and prints fixes
 ```
 
 If the error says `DevToolsActivePort` and `EPERM`, the mcporter daemon started in a
