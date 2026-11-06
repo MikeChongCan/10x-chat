@@ -19,8 +19,8 @@ if server=$(bunx mcporter config get chrome-existing --json 2>/dev/null) && jq -
   jq -e '(.args // []) | index("--autoConnect")' <<<"$server" >/dev/null &&
     ok "chrome-existing uses --autoConnect ($where)" ||
     bad "chrome-existing in $where does not use --autoConnect" 'set args to ["chrome-devtools-mcp@latest", "--autoConnect"]'
-  # Either the definition field or its env entry can turn the relay off. The daemon ignores caller shell env.
-  policy=$(jq -r '.chromeDevtoolsRelay // .env.MCPORTER_CHROME_DEVTOOLS_RELAY_POLICY // "unset"' <<<"$server")
+  # mcporter gives the env entry precedence over the chromeDevtoolsRelay field. The daemon ignores caller shell env.
+  policy=$(jq -r '.env.MCPORTER_CHROME_DEVTOOLS_RELAY_POLICY // .chromeDevtoolsRelay // "unset"' <<<"$server")
   [[ $policy == off ]] && ok "relay policy off" ||
     bad "relay policy is $policy in $where; mcporter 0.17+ then needs an OpenClaw relay and calls fail with runtime_error" \
       "add \"env\": {\"MCPORTER_CHROME_DEVTOOLS_RELAY_POLICY\": \"off\"} to chrome-existing in $where, then bunx mcporter daemon restart"
