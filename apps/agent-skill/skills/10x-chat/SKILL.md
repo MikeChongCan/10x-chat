@@ -10,7 +10,7 @@ Small browser functions find their own elements and return JSON.
 
 ## Setup check
 
-1. Run `bin/doctor.sh`. It checks the tools, the config, the relay route, the Chrome
+1. Run `bin/doctor.sh`. It checks the tools, the config and relay policy, the Chrome
    connection, and the bridge, and prints a fix for each failure. Steps 2-5 explain them.
 2. Run `bunx mcporter list chrome-existing`. The server must use
    `npx chrome-devtools-mcp@latest --autoConnect` with env

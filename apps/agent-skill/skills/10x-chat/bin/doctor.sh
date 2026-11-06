@@ -30,16 +30,8 @@ fi
 if "$limit" "${DOCTOR_TIMEOUT:-20}" bunx mcporter call chrome-existing.list_pages >/dev/null 2>&1; then
   ok "chrome-existing.list_pages"
 else
-  # The daemon names connections by id, so only use its relay routes to explain a failed call.
-  routes=$(bunx mcporter daemon status --json 2>/dev/null |
-    jq -r '[.servers[]?.chromeDevtoolsRelay | select(.route == "unavailable") | .reason] | unique | join(",")' 2>/dev/null)
-  if [[ -n $routes ]]; then
-    bad "chrome-existing.list_pages failed; the daemon routes Chrome through an unavailable relay ($routes)" \
-      "set the relay policy to off as above, then bunx mcporter daemon restart (the daemon reads config at start)"
-  else
-    bad "chrome-existing.list_pages failed or waited ${DOCTOR_TIMEOUT:-20}s" \
-      "allow remote debugging at chrome://inspect/#remote-debugging and click Allow on Chrome's \"Allow remote debugging?\" dialog, then retry"
-  fi
+  bad "chrome-existing.list_pages failed or waited ${DOCTOR_TIMEOUT:-20}s" \
+    "fix any relay policy failure above; if you changed the config after the daemon started, run bunx mcporter daemon restart. Then allow remote debugging at chrome://inspect/#remote-debugging, click Allow on Chrome's \"Allow remote debugging?\" dialog, and retry"
 fi
 
 if ping=$("$base/bridge.sh" ping 2>/dev/null); then
