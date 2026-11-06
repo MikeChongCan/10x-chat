@@ -28,7 +28,8 @@ Linux 可使用 `timeout`。脚本支持这两个命令。
   "mcpServers": {
     "chrome-existing": {
       "command": "npx",
-      "args": ["chrome-devtools-mcp@latest", "--autoConnect"]
+      "args": ["chrome-devtools-mcp@latest", "--autoConnect"],
+      "env": { "MCPORTER_CHROME_DEVTOOLS_RELAY_POLICY": "off" }
     }
   }
 }
@@ -40,10 +41,19 @@ Chrome 提示连接时，允许连接。检查服务：
 ```bash
 bunx mcporter list chrome-existing
 bunx mcporter call chrome-existing.list_pages
+apps/agent-skill/skills/10x-chat/bin/doctor.sh   # 检查整套配置，并给出修复方法
 ```
 
 如果错误包含 `DevToolsActivePort` 和 `EPERM`，说明 mcporter 守护进程是在沙箱里启动的。
 运行 `bunx mcporter daemon stop`，然后在沙箱外再运行一次。
+
+mcporter 0.17 及以后版本默认让 `--autoConnect` 服务走 OpenClaw 扩展中继。没有配对中继时，
+每次调用都会报 `runtime_error`，`bunx mcporter daemon status` 会显示
+`chrome relay: route=unavailable ... reason=missing-credential`。上面的 `env` 一行会关闭中继，
+让 `chrome-devtools-mcp` 直接连 Chrome。改完后运行 `bunx mcporter daemon restart`。
+
+每次新建直连，Chrome 都会弹出「Allow remote debugging?」，点允许。第一次调用会等你点击。
+mcporter 守护进程会保持连接，之后的调用不会再问，直到守护进程或 Chrome 重启。
 
 ## 可选：10xWise 桥接
 

@@ -10,13 +10,19 @@ Small browser functions find their own elements and return JSON.
 
 ## Setup check
 
-1. Check `bunx`, `jq`, and `gtimeout` or `timeout` with `command -v`.
+1. Run `bin/doctor.sh`. It checks the tools, the config and relay policy, the Chrome
+   connection, and the bridge, and prints a fix for each failure. Steps 2-5 explain them.
 2. Run `bunx mcporter list chrome-existing`. The server must use
-   `npx chrome-devtools-mcp@latest --autoConnect`.
+   `npx chrome-devtools-mcp@latest --autoConnect` with env
+   `MCPORTER_CHROME_DEVTOOLS_RELAY_POLICY=off`. Without it, mcporter 0.17+ tries the
+   OpenClaw relay and every call fails with `runtime_error` (`daemon status` shows
+   `chrome relay ... missing-credential`). Add it, then `bunx mcporter daemon restart`.
 3. If Chrome is not connected, ask the user to allow remote debugging at
    `chrome://inspect/#remote-debugging`. See [setup](../../README.md).
 4. Run `bunx mcporter call chrome-existing.list_pages`. On `DevToolsActivePort`
-   `EPERM`, run `bunx mcporter daemon stop` and retry outside the sandbox.
+   `EPERM`, run `bunx mcporter daemon stop` and retry outside the sandbox. A new
+   connection waits until the user clicks Allow on Chrome's "Allow remote debugging?"
+   dialog; ask the user to click it.
 5. Optional, preferred: the 10xWise bridge. Run `bridge/install.sh`, click
    Enable in the 10xWise options Agent bridge section, and turn on "Allow User
    Scripts" for 10xWise in `chrome://extensions`. Check with `bin/bridge.sh ping`.

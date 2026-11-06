@@ -31,7 +31,8 @@ Merge this server into `~/.mcporter/mcporter.json`. Keep other server entries:
   "mcpServers": {
     "chrome-existing": {
       "command": "npx",
-      "args": ["chrome-devtools-mcp@latest", "--autoConnect"]
+      "args": ["chrome-devtools-mcp@latest", "--autoConnect"],
+      "env": { "MCPORTER_CHROME_DEVTOOLS_RELAY_POLICY": "off" }
     }
   }
 }
@@ -43,10 +44,21 @@ debugging. Allow the connection when Chrome asks. Check the connection:
 ```bash
 bunx mcporter list chrome-existing
 bunx mcporter call chrome-existing.list_pages
+apps/agent-skill/skills/10x-chat/bin/doctor.sh   # checks the whole setup and prints fixes
 ```
 
 If the error says `DevToolsActivePort` and `EPERM`, the mcporter daemon started in a
 sandbox. Run `bunx mcporter daemon stop`, then run the call again outside the sandbox.
+
+mcporter 0.17 and later send `--autoConnect` servers through the OpenClaw extension
+relay by default. Without a paired relay, every call fails with `runtime_error`, and
+`bunx mcporter daemon status` shows `chrome relay: route=unavailable ... reason=missing-credential`.
+The `env` line above turns the relay off so `chrome-devtools-mcp` connects to Chrome
+directly. After you change it, run `bunx mcporter daemon restart`.
+
+Each new direct connection makes Chrome show "Allow remote debugging?". Click Allow.
+The first call waits for the click. The mcporter daemon keeps the connection, so later
+calls do not ask again until the daemon or Chrome restarts.
 
 ## Optional: 10xWise bridge
 
