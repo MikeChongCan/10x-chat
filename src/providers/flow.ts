@@ -415,16 +415,25 @@ export async function waitForGeneration(
 export const flowActions: ProviderActions = {
   async isLoggedIn(page: Page): Promise<boolean> {
     try {
-      // Wait for the studio to load
+      // Wait for the studio to load. Flow's OAuth can briefly bounce through
+      // accounts.google.com; never treat that as logged in even if the page
+      // contains generic "create" text.
       await page.waitForTimeout(3000);
 
-      // Flow requires Google account — check for profile avatar or ULTRA badge
-      const hasProfile = await page.evaluate(() => {
+      const url = page.url();
+      if (url.includes('accounts.google.com')) return false;
+
+      const hasStudio = await page.evaluate(() => {
         const body = document.body.textContent ?? '';
-        // If we see "New project" or "Create", we're logged in
-        return body.includes('New project') || body.includes('Create a project');
+        return (
+          body.includes('New project') ||
+          body.includes('Create with Flow') ||
+          body.includes('Create a project') ||
+          body.includes('新建项目')
+        );
       });
-      return hasProfile;
+
+      return url.includes('labs.google') && hasStudio;
     } catch {
       return false;
     }

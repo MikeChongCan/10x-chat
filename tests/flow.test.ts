@@ -324,11 +324,21 @@ describe('Flow Provider', () => {
   describe('flowActions.isLoggedIn', () => {
     it('should return true when studio content is present', async () => {
       const { page } = createMockPage({
-        evaluateReturn: true, // body contains "New project"
+        evaluateReturn: true, // body contains Flow studio content
       });
 
       const result = await flowActions.isLoggedIn(page as never);
       expect(result).toBe(true);
+    });
+
+    it('should return false while still in Google OAuth/password flow', async () => {
+      const { page } = createMockPage({
+        evaluateReturn: true,
+      });
+      page.url = vi.fn(() => 'https://accounts.google.com/v3/signin/challenge/pwd');
+
+      const result = await flowActions.isLoggedIn(page as never);
+      expect(result).toBe(false);
     });
 
     it('should return false on error', async () => {

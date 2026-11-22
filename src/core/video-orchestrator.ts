@@ -132,6 +132,13 @@ export async function runVideo(options: VideoOptions): Promise<VideoResult> {
     let currentUrl = page.url();
     console.log(chalk.dim(`Studio URL: ${currentUrl}`));
 
+    if (currentUrl.includes('accounts.google.com')) {
+      throw new Error(
+        'Google Flow authentication required: browser is still on Google account/password/consent flow. ' +
+          'Run `10x-chat login flow` and finish the Google prompt, then retry.',
+      );
+    }
+
     const isProjectPage = currentUrl.includes('/project/');
     if (!isProjectPage) {
       console.log(chalk.dim('Creating new project...'));
