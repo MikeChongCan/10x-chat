@@ -27,7 +27,9 @@ Set `ROUTER` to the sibling `10x-chat` folder.
 
 4. Use the provider rules. General rule: highest version, then
    Pro/Ultra/Argon/Deep Think, Thinking, Flash, Lite. Skip locked or upgrade items.
-   Skip settings such as Thinking level. If a cached best is absent or locked,
+   Skip settings such as Thinking level in the ranking; after selection, set
+   reasoning or thinking effort to its highest value (for example ChatGPT Pro or
+   Thinking at max, Gemini Pro or Argon at High). If a cached best is absent or locked,
    rank the current menu. For an unknown requested name, report the valid names;
    ask the user to resolve ambiguity before selecting a substitute.
 5. Set `PICK` to the exact chosen label. Select it:

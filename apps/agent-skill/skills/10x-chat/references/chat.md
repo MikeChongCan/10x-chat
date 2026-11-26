@@ -9,7 +9,9 @@ Use absolute skill folders. Set `ROUTER` to the `10x-chat` folder.
    A missing composer after login can mean a home screen; follow provider steps.
 3. If MODEL is set, select and verify it before sending. Use best-model for best
    or an unknown name. Otherwise keep the site's current model.
-4. Set chat, image, research, or video mode and its options as requested.
+4. Set chat, image, deep research, or video mode and its options as requested.
+   Research or ask means chat: MODEL=best, highest reasoning or thinking effort.
+   Deep research only when the user says "deep research".
    For controls without helpers, set `CDP=$("$ROUTER/bin/cdp-id.sh" "$PAGE")`,
    take_snapshot with pageId `$CDP`, then click with that pageId and the current uid. Snapshot again to verify the requested settings.
 5. For FILES, reveal the attachment control. Take a fresh snapshot. Call

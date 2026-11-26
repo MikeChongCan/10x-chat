@@ -32,6 +32,8 @@ Small browser functions find their own elements and return JSON.
 
 ## Route by situation
 
+Research or ask defaults to a normal chat: best model (best-model skill) at the highest reasoning or thinking effort. Use Deep research only when the user says "deep research".
+
 | Situation | Load |
 |---|---|
 | Gemini chat, images, research | [10x-chat-gemini](../10x-chat-gemini/SKILL.md) |

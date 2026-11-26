@@ -2,6 +2,7 @@
 
 1. Choose N providers from the request. Load each provider skill.
 2. Use the [chat procedure](chat.md) for each provider with the same prompt and files.
+   Default: normal chat, MODEL=best, highest effort. Deep research only when the user says "deep research".
 3. Open one tab per provider. Keep a provider-to-pageId map. Run independent
    insert, send, and wait calls as parallel shell jobs. Keep outputs separate.
 4. Handle login or blocks per provider. Continue the other jobs. Do not reuse a

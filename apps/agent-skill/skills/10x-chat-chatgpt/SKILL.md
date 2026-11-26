@@ -34,4 +34,4 @@ Use the shared best-model skill for ranking and cache rules.
 
 ## Known quirks
 
-A hidden fallback textarea can precede the real composer. Use the visible editor. The no-auth overlay can remain above a logged-in editor. Inspect `#modal-no-auth-login` and `#modal-onboarding`; use the visible Close or Skip control for onboarding. Route consent or account requests to wait-user. Do not remove the overlay or type through it. For images or Deep research, select the tool in the composer menu before insertion. Confirm a research plan if shown.
+A hidden fallback textarea can precede the real composer. Use the visible editor. The no-auth overlay can remain above a logged-in editor. Inspect `#modal-no-auth-login` and `#modal-onboarding`; use the visible Close or Skip control for onboarding. Route consent or account requests to wait-user. Do not remove the overlay or type through it. Research or ask is a normal chat on the best model at the highest effort (Pro, or Thinking at max). Use Deep research only when the user says "deep research". For images or Deep research, select the tool in the composer menu before insertion. Confirm a research plan if shown.
