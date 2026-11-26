@@ -27,11 +27,11 @@ Set `PROVIDER` to this folder and `ROUTER` to its sibling `10x-chat` folder.
 
 ## Model ranking
 
-Prefer the requested model for research. For best, prefer the newest Pro model, then Sonar Pro, then Sonar, then Auto. Research is a separate mode.
+Prefer the requested model for research. For best, prefer the newest Pro model, then Sonar Pro, then Sonar, then Auto. Research or ask is a normal search chat on the best model. Use the Research mode only when the user says "deep research".
 
 Open `js/open-models.js`, then list `js/models.js` and select with `js/pick-model.js`.
 Use the shared best-model skill for ranking and cache rules.
 
 ## Known quirks
 
-The sign-in popup can cover Submit. Check login and dialog state first. A visible composer can exist while signed out. For research, select Research from the composer mode menu before insertion. Read the last `.prose` block and include its source links.
+The sign-in popup can cover Submit. Check login and dialog state first. A visible composer can exist while signed out. For deep research, select Research from the composer mode menu before insertion. Read the last `.prose` block and include its source links.
