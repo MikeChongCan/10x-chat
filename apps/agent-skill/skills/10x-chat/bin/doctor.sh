@@ -7,7 +7,7 @@ fail=0
 ok() { echo "ok    $1"; }
 bad() { echo "FAIL  $1"; echo "      fix: $2"; fail=1; }
 
-for t in bunx jq; do
+for t in bun bunx jq; do
   command -v "$t" >/dev/null && ok "$t" || bad "$t missing" "install $t"
 done
 limit=$(command -v gtimeout || command -v timeout) && ok "timeout" ||

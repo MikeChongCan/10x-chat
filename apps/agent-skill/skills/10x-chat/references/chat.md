@@ -2,6 +2,7 @@
 
 Method inputs: `PROVIDER`, `PROMPT`, optional `FILES`, optional `MODEL`.
 Use absolute skill folders. Set `ROUTER` to the `10x-chat` folder.
+Browser steps are mechanical. In a subagent, use `haiku` for one provider run; use `sonnet` if a step fails twice or needs debugging. Never `opus`/`fable` for clicking, typing, or polling. The main agent keeps provider choice and answer judgment.
 
 1. Load the provider skill. Open its URL with `bin/open.sh` from ROUTER.
    Set `PAGE` to stdout. Read state with `bin/js.sh` and the provider state file.
@@ -16,23 +17,23 @@ Use absolute skill folders. Set `ROUTER` to the `10x-chat` folder.
    `bunx mcporter call chrome-existing.upload_file --args` with JSON containing
    `pageId` (`$CDP` from `bin/cdp-id.sh`), the file input `uid`, and absolute `filePaths`. Wait for attachment
    thumbnails or source processing to finish. Use provider-specific source steps.
-6. Save the baseline: `BASE=$("$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/read.js" | jq .count)`.
+6. Save the baseline: `BASE=$("$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/read.ts" | jq .count)`.
    Insert the full prompt:
 
    ```bash
-   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/insert.js" "$(jq -nc --arg text "$PROMPT" '{text:$text}')"
+   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/insert.ts" "$(jq -nc --arg text "$PROMPT" '{text:$text}')"
    ```
 
    Require ok=true and len equal to the full prompt length. Use UTF-16 length
    when the prompt has emoji. Check a snapshot if insertion differs.
    Never use type_text for prompts: newline can submit early.
-7. Run `bin/js.sh` with `js/send.js` from PROVIDER. Require ok=true.
+7. Run `bin/js.sh` with `js/send.ts` from PROVIDER. Require ok=true.
    Wait for generation or a new assistant answer before starting the stability
    check. For Grok, confirm that the newest bubble is an assistant response.
    Do not mistake the prompt echo or the previous answer for completion.
 8. Run `MIN_COUNT=$((BASE + 1)) "$ROUTER/bin/wait.sh" "$PAGE" "$PROVIDER" 600`.
    MIN_COUNT makes it skip the previous answer. For flow and dreamina, use
-   `MIN_COUNT=1`: their read.js already skips videos that existed before send.
+   `MIN_COUNT=1`: their read.ts already skips videos that existed before send.
    Exit 3 loads wait-user. Exit 4 loads login. Exit 124 reports timeout.
    Other nonzero exits are tool errors; inspect them before retrying.
 9. Return the answer with source links and media URLs. Preserve provider labels.

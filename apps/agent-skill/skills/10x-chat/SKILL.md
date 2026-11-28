@@ -7,6 +7,7 @@ description: Use web AI chat, research, images, or video through the user's Chro
 
 Use the user's Chrome sessions. The agent is the harness. Skills hold the steps.
 Small browser functions find their own elements and return JSON.
+Browser steps are mechanical. In a subagent, use `haiku` for one provider run; use `sonnet` if a step fails twice or needs debugging. Never `opus`/`fable` for clicking, typing, or polling. The main agent keeps provider choice and answer judgment.
 
 ## Setup check
 
@@ -67,7 +68,7 @@ Build absolute paths from the loaded skill folder. Helpers accept a page ID.
 
 ```bash
 "$ROUTER/bin/open.sh" 'https://gemini.google.com/app'
-"$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/state.js"
+"$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/state.ts"
 "$ROUTER/bin/wait.sh" "$PAGE" "$PROVIDER" 600
 ```
 

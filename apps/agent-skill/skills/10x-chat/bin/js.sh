@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# js.sh <pageId|t<tabId>> <file.js> [json-arg]
+# js.sh <pageId|t<tabId>> <file.ts|file.js> [json-arg]
 set -euo pipefail
-[[ $# -ge 2 && $# -le 3 && $1 =~ ^(t[0-9]+|[0-9]+)$ ]] || { echo 'Usage: js.sh <pageId> <file.js> [json-arg]' >&2; exit 2; }
+base=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+[[ $# -ge 2 && $# -le 3 && $1 =~ ^(t[0-9]+|[0-9]+)$ ]] || { echo 'Usage: js.sh <pageId> <file.ts|file.js> [json-arg]' >&2; exit 2; }
 page=$1
 file=$2
 arg=${3:-null}
@@ -9,10 +10,13 @@ jq empty <<<"$arg"
 limit=$(command -v gtimeout || command -v timeout)
 # Encode the argument as a string, then parse it in the page. Never splice code from it.
 encoded=$(jq -nc --argjson value "$arg" '$value | tojson')
-source=$(cat "$file")
+if [[ $file == *.ts ]]; then
+  source=$(bun "$base/strip-ts.ts" "$file")
+else
+  source=$(cat "$file")
+fi
 source=${source%;}
 if [[ $page == t* ]]; then
-  base=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
   code="($source)(JSON.parse($encoded))"
   exec "$base/bridge.sh" evaluate "$(jq -nc --argjson t "${page#t}" --arg c "$code" '{tabId:$t,code:$c}')"
 fi

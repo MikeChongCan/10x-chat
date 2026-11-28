@@ -9,7 +9,7 @@ Run app commands from this folder. Keep the Chrome extension separate.
 | skills/10x-chat/bin/ | Run a browser function, open a tab, wait for a result |
 | skills/10x-chat/references/ | Chat, parallel answers, debug, improvement |
 | skills/10x-chat-*/SKILL.md | Provider steps or recovery steps |
-| skills/10x-chat-*/js/ | Standalone browser function expressions |
+| skills/10x-chat-*/js/ | TypeScript browser function expressions, transpiled by Bun in js.sh |
 | tests/fixtures/ | Small HTML pages for each provider |
 | tests/js.test.ts | Browser function contracts and regression cases |
 | tests/structure.test.ts | Skill names, paths, required files, syntax, line limits |
@@ -18,9 +18,10 @@ Run app commands from this folder. Keep the Chrome extension separate.
 
 1. Add a skills/10x-chat-NAME folder. Its SKILL.md frontmatter name must match
    the folder. Give description a clear trigger. Keep the skill at most 200 lines.
-2. Add state, insert, send, and read JS helpers. Each file must be one function
+2. Add state, insert, send, and read TS helpers. Each file must be one function
    expression. It finds elements itself and returns JSON. No uid arguments.
-3. For a model menu, add open-models, models, and pick-model JS helpers.
+   The shared js.sh transpiles helpers with Bun before browser injection.
+3. For a model menu, add open-models, models, and pick-model TS helpers.
    NotebookLM has no model menu. Flow and Dreamina may add video helpers.
 4. State returns exactly this shape:
 

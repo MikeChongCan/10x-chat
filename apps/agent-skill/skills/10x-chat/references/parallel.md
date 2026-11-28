@@ -1,5 +1,7 @@
 # Parallel answers
 
+Browser steps are mechanical. In a subagent, use `haiku` for one provider run; use `sonnet` if a step fails twice or needs debugging. Never `opus`/`fable` for clicking, typing, or polling. The main agent keeps provider choice and answer judgment.
+
 1. Choose N providers from the request. Load each provider skill.
 2. Use the [chat procedure](chat.md) for each provider with the same prompt and files.
 3. Open one tab per provider. Keep a provider-to-pageId map. Run independent

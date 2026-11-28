@@ -36,6 +36,14 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["package.json", "tsconfig.json", "biome.json", "tests/**/*.ts", "skills/**/*.js"]
+    "includes": [
+      "package.json",
+      "tsconfig.json",
+      "biome.json",
+      "tests/**/*.ts",
+      "skills/**/*.js",
+      "skills/**/js/*.ts",
+      "skills/10x-chat/bin/*.ts"
+    ]
   }
 }

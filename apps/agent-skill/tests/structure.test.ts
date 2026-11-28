@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
+import { normalizeHelperJs } from '../skills/10x-chat/bin/strip-ts.ts';
 
 const root = resolve('.');
 const skills = join(root, 'skills');
@@ -47,16 +48,16 @@ describe('skill structure', () => {
         ...(provider === 'notebooklm' ? [] : ['open-models', 'models', 'pick-model']),
       ];
       for (const file of required)
-        expect(existsSync(join(skills, `10x-chat-${provider}/js/${file}.js`))).toBe(true);
+        expect(existsSync(join(skills, `10x-chat-${provider}/js/${file}.ts`))).toBe(true);
       expect(
         files(join(root, 'tests/fixtures', provider)).some((file) => file.endsWith('.html')),
       ).toBe(true);
     });
   }
-  for (const file of allFiles.filter((file) => file.endsWith('.js'))) {
+  for (const file of allFiles.filter((file) => /\/js\/[^/]+\.ts$/.test(file))) {
     it(`${file} is one function expression`, () => {
       const src = readFileSync(file, 'utf8');
-      const ast = ts.createSourceFile(file, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+      const ast = ts.createSourceFile(file, src, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
       expect(ast.statements).toHaveLength(1);
       const statement = ast.statements[0];
       expect(ts.isExpressionStatement(statement)).toBe(true);
@@ -64,7 +65,10 @@ describe('skill structure', () => {
       let expr = statement.expression;
       while (ts.isParenthesizedExpression(expr)) expr = expr.expression;
       expect(ts.isArrowFunction(expr) || ts.isFunctionExpression(expr)).toBe(true);
-      expect(typeof new Function(`return ${src}`)()).toBe('function');
+      const js = normalizeHelperJs(
+        ts.transpileModule(src, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText,
+      );
+      expect(typeof new Function(`return ${js}`)()).toBe('function');
     });
   }
   for (const file of markdown) {
@@ -76,7 +80,7 @@ describe('skill structure', () => {
         expect(existsSync(resolve(dirname(file), target)), `${file}: ${target}`).toBe(true);
       }
       for (const match of text.matchAll(
-        /((?:\.\.\/[^\s`"<>]+\/)?(?:js|bin)\/[\w.*-]+\.(?:js|sh))/g,
+        /((?:\.\.\/[^\s`"<>]+\/)?(?:js|bin)\/[\w.*-]+\.(?:ts|js|sh))/g,
       )) {
         const path = match[1];
         const direct = resolve(dirname(file), path);
@@ -85,7 +89,7 @@ describe('skill structure', () => {
         const router = join(skills, '10x-chat', path);
         const candidates = path.startsWith('js/')
           ? providers
-              .filter((provider) => provider !== 'notebooklm' || !/models|model\.js/.test(path))
+              .filter((provider) => provider !== 'notebooklm' || !/models|model\.ts/.test(path))
               .map((provider) => join(skills, `10x-chat-${provider}`, path))
           : [router];
         if (path.includes('*')) {

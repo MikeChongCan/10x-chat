@@ -21,8 +21,8 @@ Set `ROUTER` to the sibling `10x-chat` folder.
 3. Open the menu and list its items, even when using a cached choice:
 
    ```bash
-   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/open-models.js"
-   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/models.js"
+   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/open-models.ts"
+   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/models.ts"
    ```
 
 4. Use the provider rules. General rule: highest version, then
@@ -33,8 +33,8 @@ Set `ROUTER` to the sibling `10x-chat` folder.
 5. Set `PICK` to the exact chosen label. Select it:
 
    ```bash
-   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/pick-model.js" "$(jq -nc --arg name "$PICK" '{name:$name}')"
-   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/state.js"
+   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/pick-model.ts" "$(jq -nc --arg name "$PICK" '{name:$name}')"
+   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/state.ts"
    ```
 
    Require `ok=true` and `state.model` to show the selected name. Ignore version

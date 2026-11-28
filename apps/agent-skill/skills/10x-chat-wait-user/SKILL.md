@@ -21,7 +21,7 @@ Set `ROUTER` to the sibling `10x-chat` folder.
 5. Poll every 5 seconds for at most 10 minutes:
 
    ```bash
-   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/state.js"
+   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/state.ts"
    ```
 
 6. When `blocked=null`, check login. If false, load [login](../10x-chat-login/SKILL.md).

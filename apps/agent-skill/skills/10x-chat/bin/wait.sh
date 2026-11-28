@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # wait.sh <pageId> <provider-dir> [timeoutSec=600]
-# MIN_COUNT=n: wait until read.js .count >= n (set it to the count before send + 1).
+# MIN_COUNT=n: wait until read.ts .count >= n (set it to the count before send + 1).
 set -euo pipefail
 [[ ${MIN_COUNT:-0} =~ ^[0-9]+$ ]] || { echo 'MIN_COUNT must be a number' >&2; exit 2; }
 [[ $# -ge 2 && $# -le 3 && $1 =~ ^(t[0-9]+|[0-9]+)$ && ${3:-600} =~ ^[1-9][0-9]*$ ]] || { echo 'Usage: wait.sh <pageId> <provider-dir> [timeoutSec=600]' >&2; exit 2; }
@@ -15,7 +15,9 @@ stable=0
 poll() {
   local remaining=$((deadline - SECONDS))
   ((remaining > 0)) || return 124
-  "$limit" "$remaining" "$base/js.sh" "$page" "$provider/js/$1.js"
+  local file="$provider/js/$1.ts"
+  [[ -f $file ]] || file="$provider/js/$1.js"
+  "$limit" "$remaining" "$base/js.sh" "$page" "$file"
 }
 while ((SECONDS < deadline)); do
   state=$(poll state) || exit $?

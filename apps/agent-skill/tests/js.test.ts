@@ -3,7 +3,9 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { Window } from 'happy-dom';
+import ts from 'typescript';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { normalizeHelperJs } from '../skills/10x-chat/bin/strip-ts.ts';
 
 const providers = [
   'gemini',
@@ -26,12 +28,15 @@ const models: Record<string, string> = {
 };
 let win: Window;
 function run(provider: string, file: string, arg?: unknown) {
-  const src = readFileSync(`skills/10x-chat-${provider}/js/${file}.js`, 'utf8');
+  const source = readFileSync(`skills/10x-chat-${provider}/js/${file}.ts`, 'utf8');
+  const src = normalizeHelperJs(
+    ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText,
+  );
   return new Function(`return ${src}`)()(arg);
 }
-function setup(provider: string) {
+function setup(provider: string, fixture = 'ready') {
   win = new Window({ url: `https://${provider}.example/` });
-  win.document.write(readFileSync(`tests/fixtures/${provider}/ready.html`, 'utf8'));
+  win.document.write(readFileSync(`tests/fixtures/${provider}/${fixture}.html`, 'utf8'));
   for (const key of [
     'window',
     'document',
@@ -39,6 +44,7 @@ function setup(provider: string) {
     'HTMLElement',
     'HTMLTextAreaElement',
     'HTMLInputElement',
+    'KeyboardEvent',
     'sessionStorage',
   ]) {
     vi.stubGlobal(key, key === 'window' ? win : (win as unknown as Record<string, unknown>)[key]);
@@ -132,7 +138,7 @@ for (const provider of providers) {
       win.document.querySelectorAll('button').forEach((button) => {
         button.disabled = true;
       });
-      expect(run(provider, 'send')).toEqual({ ok: false });
+      expect(run(provider, 'send')).toMatchObject({ ok: false });
       expect(clicked).toHaveBeenCalledTimes(1);
     });
     it('recognizes generation and ignores hidden stop controls', () => {
@@ -169,7 +175,7 @@ for (const provider of providers) {
       win.document.body.innerHTML = '';
       expect(run(provider, 'state')).toMatchObject({ composer: false, loggedIn: false });
       expect(run(provider, 'insert', { text: 'test' })).toEqual({ ok: false, len: 0 });
-      expect(run(provider, 'send')).toEqual({ ok: false });
+      expect(run(provider, 'send')).toMatchObject({ ok: false });
       expect(run(provider, 'read')).toMatchObject({ text: '', images: [], links: [] });
     });
     it('extracts the last answer and source/media arrays', () => {
@@ -231,6 +237,94 @@ describe('provider regressions', () => {
       el.remove();
     win.document.body.insertAdjacentHTML('beforeend', '<button aria-label="Send">Send</button>');
     expect(run('chatgpt', 'send')).toEqual({ ok: true });
+  });
+  it('closes an open ChatGPT menu before sending', () => {
+    setup('chatgpt', 'send-menu');
+    const menu = win.document.querySelector('[role="menu"]');
+    const button = win.document.querySelector(
+      '#composer-submit-button',
+    ) as unknown as HTMLButtonElement;
+    const editor = win.document.querySelector('#prompt-textarea') as unknown as HTMLElement;
+    editor.focus();
+    const clicked = vi.fn();
+    const keys: string[] = [];
+    button.addEventListener('click', clicked);
+    win.document.addEventListener('keydown', (event) => {
+      const key = (event as unknown as KeyboardEvent).key;
+      keys.push(key);
+      expect(event.target).toBe(editor);
+      if (key !== 'Escape') return;
+      menu?.remove();
+      button.hidden = false;
+      button.disabled = false;
+    });
+    expect(run('chatgpt', 'send')).toEqual({ ok: true });
+    expect(keys).toEqual(['Escape']);
+    expect(clicked).toHaveBeenCalledTimes(1);
+  });
+  it('diagnoses a missing ChatGPT send button without pressing Enter', () => {
+    setup('chatgpt', 'send-menu');
+    const keys: string[] = [];
+    const clicked = vi.fn();
+    win.document.addEventListener('keydown', (event) =>
+      keys.push((event as unknown as KeyboardEvent).key),
+    );
+    win.document.addEventListener('click', clicked);
+    expect(run('chatgpt', 'send')).toEqual({
+      ok: false,
+      reason: 'no-send-button',
+      menuOpen: true,
+      editorLen: 'Menu prompt'.length,
+      buttons: ['Attach file'],
+    });
+    expect(keys).toEqual(['Escape']);
+    expect(clicked).not.toHaveBeenCalled();
+  });
+  it('never clicks a loose Send button outside the ChatGPT composer', () => {
+    setup('chatgpt', 'send-menu');
+    win.document.querySelector('[role="menu"]')?.remove();
+    win.document.body.insertAdjacentHTML(
+      'afterbegin',
+      '<button aria-label="Send feedback">Feedback</button>',
+    );
+    const clicked = vi.fn();
+    win.document.querySelector('[aria-label="Send feedback"]')?.addEventListener('click', clicked);
+    expect(run('chatgpt', 'send')).toMatchObject({
+      ok: false,
+      reason: 'no-send-button',
+      menuOpen: false,
+    });
+    expect(clicked).not.toHaveBeenCalled();
+  });
+  it('leaves an open ChatGPT dialog alone when the send button is ready', () => {
+    setup('chatgpt', 'send-menu');
+    const button = win.document.querySelector(
+      '#composer-submit-button',
+    ) as unknown as HTMLButtonElement;
+    button.hidden = false;
+    button.disabled = false;
+    win.document.body.insertAdjacentHTML(
+      'beforeend',
+      '<div role="dialog" data-state="open">Research plan</div>',
+    );
+    const keys: string[] = [];
+    win.document.addEventListener('keydown', (event) =>
+      keys.push((event as unknown as KeyboardEvent).key),
+    );
+    const clicked = vi.fn();
+    button.addEventListener('click', clicked);
+    expect(run('chatgpt', 'send')).toEqual({ ok: true });
+    expect(keys).toEqual([]);
+    expect(clicked).toHaveBeenCalledTimes(1);
+  });
+  it('reports menuOpen when a modal ChatGPT menu hides the composer', () => {
+    setup('chatgpt', 'send-menu');
+    win.document.querySelector('#composer')?.setAttribute('aria-hidden', 'true');
+    expect(run('chatgpt', 'send')).toMatchObject({
+      ok: false,
+      reason: 'no-send-button',
+      menuOpen: true,
+    });
   });
   it('reads only the Claude markdown and the model label', () => {
     setup('claude');
@@ -418,6 +512,14 @@ if (args.includes('chrome-existing.new_page')) {
     const withArg = shell('js', ['27', file, JSON.stringify(arg)], 'eval');
     expect(withArg.status, withArg.stderr).toBe(0);
     expect(JSON.parse(withArg.stdout)).toEqual({ ok: true, arg });
+  });
+  it('transpiles TypeScript files before browser evaluation', () => {
+    const file = join(temp, 'function.ts');
+    writeFileSync(file, '(arg: { text: string } | null) => ({ ok: true, text: arg?.text });\n');
+    const result = shell('js', ['27', file, JSON.stringify({ text: 'typed' })], 'eval');
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({ ok: true, text: 'typed' });
   });
   it('opens a page and prints only the selected ID', () => {
     const result = shell('open', ['https://new.example'], 'eval');

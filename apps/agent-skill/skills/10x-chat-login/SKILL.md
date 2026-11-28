@@ -19,7 +19,7 @@ Set `ROUTER` to the sibling `10x-chat` folder.
 4. Every 5 seconds, run the following check. Stop after 5 minutes.
 
    ```bash
-   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/state.js"
+   "$ROUTER/bin/js.sh" "$PAGE" "$PROVIDER/js/state.ts"
    ```
 
 5. If blocked, load [wait-user](../10x-chat-wait-user/SKILL.md).
